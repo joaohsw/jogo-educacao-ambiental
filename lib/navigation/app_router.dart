@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 
+import '../data/cena1_lavoura_config.dart';
 import '../screens/home_screen.dart';
 import '../screens/spot_the_error_screen.dart';
 import '../screens/packaging_journey_screen.dart';
@@ -8,34 +9,6 @@ import '../screens/ranking_screen.dart';
 import '../models/hotspot_config.dart';
 
 // ─── Hotspot configs for Jogo dos Erros ─────────────────────
-
-/// Cena 1 — Lavoura hotspot configurations.
-final _lavouraHotspots = [
-  HotspotConfig(
-    id: 'sem_epi',
-    relativeX: 0.25,
-    relativeY: 0.35,
-    relativeWidth: 0.15,
-    relativeHeight: 0.25,
-    successMessage: 'Muito bem! O aplicador deverá sempre usar o EPI completo.',
-  ),
-  HotspotConfig(
-    id: 'embalagem_chao',
-    relativeX: 0.55,
-    relativeY: 0.70,
-    relativeWidth: 0.12,
-    relativeHeight: 0.15,
-    successMessage: 'Correto! Embalagens nunca devem ficar jogadas no chão.',
-  ),
-  HotspotConfig(
-    id: 'animais_proximos',
-    relativeX: 0.75,
-    relativeY: 0.50,
-    relativeWidth: 0.14,
-    relativeHeight: 0.20,
-    successMessage: 'Muito bem! Animais devem ser mantidos longe da área de aplicação.',
-  ),
-];
 
 /// Cena 2 — Depósito hotspot configurations.
 final _depositoHotspots = [
@@ -79,9 +52,8 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => SpotTheErrorScreen(
         sceneTitle: 'Cena 1 — Lavoura',
         miniGameId: 'jogo_erros_lavoura',
-        hotspots: _lavouraHotspots,
-        // Background image will be a placeholder color for now.
-        backgroundAsset: null,
+        hotspots: cena1LavouraHotspots,
+        backgroundAsset: cena1BackgroundAsset,
       ),
     ),
     GoRoute(

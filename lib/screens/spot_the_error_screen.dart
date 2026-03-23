@@ -143,49 +143,61 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
             onTapUp: (_) => _onBackgroundTapped(),
             child: Stack(
               children: [
-                // Background — placeholder gradient until real assets arrive.
-                Container(
-                  width: constraints.maxWidth,
-                  height: constraints.maxHeight,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: widget.miniGameId.contains('lavoura')
-                          ? [
-                              const Color(0xFFA5D6A7),
-                              const Color(0xFF66BB6A),
-                              const Color(0xFF388E3C),
-                            ]
-                          : [
-                              const Color(0xFFBCAAA4),
-                              const Color(0xFF8D6E63),
-                              const Color(0xFF5D4037),
-                            ],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                // Background — real image or placeholder gradient.
+                if (widget.backgroundAsset != null)
+                  SizedBox(
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    child: Image.asset(
+                      widget.backgroundAsset!,
+                      fit: BoxFit.cover,
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
                     ),
-                  ),
-                  child: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          widget.miniGameId.contains('lavoura')
-                              ? Icons.agriculture
-                              : Icons.warehouse,
-                          size: 80,
-                          color: Colors.white24,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Toque nos erros na imagem!',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: Colors.white70,
+                  )
+                else
+                  Container(
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: widget.miniGameId.contains('lavoura')
+                            ? [
+                                const Color(0xFFA5D6A7),
+                                const Color(0xFF66BB6A),
+                                const Color(0xFF388E3C),
+                              ]
+                            : [
+                                const Color(0xFFBCAAA4),
+                                const Color(0xFF8D6E63),
+                                const Color(0xFF5D4037),
+                              ],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                    ),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            widget.miniGameId.contains('lavoura')
+                                ? Icons.agriculture
+                                : Icons.warehouse,
+                            size: 80,
+                            color: Colors.white24,
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Text(
+                            'Toque nos erros na imagem!',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
 
                 // Hotspot overlays.
                 ...widget.hotspots.map((hs) {

@@ -23,9 +23,15 @@ class DetetiveNaPropriedadeApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: const Color(0xFF2E7D32), // green tone
+        colorSchemeSeed: const Color(0xFF1B4332),
         brightness: Brightness.light,
+        scaffoldBackgroundColor: const Color(0xFFFAF8F5),
         fontFamily: 'Roboto',
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Color(0xFF1B4332),
+          foregroundColor: Colors.white,
+          elevation: 0,
+        ),
       ),
       routerConfig: appRouter,
     );
