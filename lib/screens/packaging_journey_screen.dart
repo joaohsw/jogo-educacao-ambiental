@@ -177,6 +177,7 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -195,14 +196,14 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFFE3F2FD),
+                color: isDark ? const Color(0xFF1A2733) : const Color(0xFFE3F2FD),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 'Arraste os cards para a sequência correta. Cuidado com os cards errados!',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF1565C0),
+                  color: isDark ? const Color(0xFF90CAF9) : const Color(0xFF1565C0),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -218,7 +219,7 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
                 scrollDirection: Axis.horizontal,
                 itemCount: 5,
                 separatorBuilder: (_, index) => const SizedBox(width: 8),
-                itemBuilder: (context, index) => _buildDropSlot(index),
+                itemBuilder: (context, index) => _buildDropSlot(index, isDark),
               ),
             ),
             const SizedBox(height: 24),
@@ -244,7 +245,7 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
                       spacing: 10,
                       runSpacing: 10,
                       children:
-                          _availableCards.map(_buildDraggableCard).toList(),
+                          _availableCards.map((c) => _buildDraggableCard(c, isDark)).toList(),
                     ),
             ),
           ],
@@ -253,7 +254,7 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
     );
   }
 
-  Widget _buildDropSlot(int index) {
+  Widget _buildDropSlot(int index, bool isDark) {
     final placed = _placedCards[index];
 
     return DragTarget<_PackagingCard>(
@@ -262,22 +263,28 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
       builder: (context, candidateData, rejectedData) {
         final isHovering = candidateData.isNotEmpty;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          width: 120,
+        final emptyBg = isDark ? const Color(0xFF1E1E1E) : Colors.grey.shade100;
+        final hoverBg = isDark ? const Color(0xFF1A2733) : Colors.blue.shade50;
+        final filledBg = isDark ? const Color(0xFF1B3326) : Colors.green.shade50;
+        final emptyBorder = isDark ? const Color(0xFF333333) : Colors.grey.shade300;
+        final hoverBorder = isDark ? const Color(0xFF5090C0) : Colors.blue;
+        final textMuted = isDark ? Colors.white38 : Colors.grey.shade400;
+
+        return Container(
+          width: 100,
           decoration: BoxDecoration(
             color: placed != null
-                ? Colors.green.shade50
+                ? filledBg
                 : isHovering
-                    ? Colors.blue.shade50
-                    : Colors.grey.shade100,
+                    ? hoverBg
+                    : emptyBg,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: placed != null
                   ? Colors.green
                   : isHovering
-                      ? Colors.blue
-                      : Colors.grey.shade300,
+                      ? hoverBorder
+                      : emptyBorder,
               width: 2,
             ),
           ),
@@ -286,11 +293,14 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
               ? Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(placed.icon, color: Colors.green, size: 28),
+                    Icon(placed.icon, color: Colors.green, size: 22),
                     const SizedBox(height: 4),
                     Text(placed.label,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 11)),
+                        style: TextStyle(
+                          fontSize: 11,
+                          color: isDark ? Colors.white70 : Colors.black87,
+                        )),
                   ],
                 )
               : Column(
@@ -298,14 +308,14 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
                   children: [
                     Text('${index + 1}',
                         style: TextStyle(
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey.shade400,
+                          color: textMuted,
                         )),
                     Text('Arraste aqui',
                         style: TextStyle(
                           fontSize: 10,
-                          color: Colors.grey.shade400,
+                          color: textMuted,
                         )),
                   ],
                 ),
@@ -314,31 +324,39 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
     );
   }
 
-  Widget _buildDraggableCard(_PackagingCard card) {
+  Widget _buildDraggableCard(_PackagingCard card, bool isDark) {
     return Draggable<_PackagingCard>(
       data: card,
       feedback: Material(
         elevation: 6,
         borderRadius: BorderRadius.circular(12),
-        child: _cardContent(card, dragging: true),
+        child: _cardContent(card, isDark: isDark, dragging: true),
       ),
       childWhenDragging: Opacity(
         opacity: 0.3,
-        child: _cardContent(card),
+        child: _cardContent(card, isDark: isDark),
       ),
-      child: _cardContent(card),
+      child: _cardContent(card, isDark: isDark),
     );
   }
 
-  Widget _cardContent(_PackagingCard card, {bool dragging = false}) {
+  Widget _cardContent(_PackagingCard card, {required bool isDark, bool dragging = false}) {
+    final correctBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final incorrectBg = isDark ? const Color(0xFF2A2010) : const Color(0xFFFFF3E0);
+    final correctBorder = isDark ? const Color(0xFF3060A0) : Colors.blue.shade200;
+    final incorrectBorder = isDark ? const Color(0xFF805030) : Colors.orange.shade300;
+    final iconCorrect = isDark ? const Color(0xFF64B5F6) : Colors.blue;
+    final iconIncorrect = isDark ? const Color(0xFFFFB74D) : Colors.orange;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
     return Container(
-      width: 120,
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      width: 100,
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
       decoration: BoxDecoration(
-        color: card.isCorrect ? Colors.white : const Color(0xFFFFF3E0),
+        color: card.isCorrect ? correctBg : incorrectBg,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: card.isCorrect ? Colors.blue.shade200 : Colors.orange.shade300,
+          color: card.isCorrect ? correctBorder : incorrectBorder,
         ),
         boxShadow: dragging
             ? [
@@ -351,11 +369,11 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(card.icon,
-              color: card.isCorrect ? Colors.blue : Colors.orange, size: 28),
+              color: card.isCorrect ? iconCorrect : iconIncorrect, size: 22),
           const SizedBox(height: 6),
           Text(card.label,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500)),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: textColor)),
         ],
       ),
     );

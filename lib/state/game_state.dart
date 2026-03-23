@@ -19,6 +19,15 @@ class ScoreEntry {
 ///
 /// Tracks per-minigame scores, a global total, and a leaderboard ranking.
 class GameState extends ChangeNotifier {
+  // Theme mode — dark by default.
+  bool _isDarkMode = true;
+  bool get isDarkMode => _isDarkMode;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
+  }
+
   // Scores keyed by mini-game identifier.
   final Map<String, int> _scores = {
     'jogo_erros_lavoura': 0,

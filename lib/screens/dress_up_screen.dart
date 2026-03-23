@@ -209,6 +209,7 @@ class _DressUpScreenState extends State<DressUpScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
@@ -238,24 +239,24 @@ class _DressUpScreenState extends State<DressUpScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: const Color(0xFFF3E5F5),
+                color: isDark ? const Color(0xFF251A2E) : const Color(0xFFF3E5F5),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
                 'Arraste os itens corretos de EPI para a parte do corpo correspondente do avatar.',
                 textAlign: TextAlign.center,
                 style: theme.textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF6A1B9A),
+                  color: isDark ? const Color(0xFFCE93D8) : const Color(0xFF6A1B9A),
                   fontWeight: FontWeight.w500,
                 ),
               ),
             ),
             const SizedBox(height: 16),
 
-            // Avatar zone (the character with drop targets).
+            // Avatar zone.
             Expanded(
               flex: 3,
-              child: Center(child: _buildAvatar()),
+              child: Center(child: _buildAvatar(isDark)),
             ),
             const SizedBox(height: 16),
 
@@ -282,7 +283,7 @@ class _DressUpScreenState extends State<DressUpScreen> {
                         spacing: 10,
                         runSpacing: 10,
                         children:
-                            _availableItems.map(_buildDraggableItem).toList(),
+                            _availableItems.map((i) => _buildDraggableItem(i, isDark)).toList(),
                       ),
                     ),
             ),
@@ -292,38 +293,46 @@ class _DressUpScreenState extends State<DressUpScreen> {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(bool isDark) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _buildDropZone('head', 'Cabeça', Icons.face, width: 80, height: 60),
+        _buildDropZone('head', 'Cabeça', Icons.face, isDark, width: 80, height: 60),
         const SizedBox(height: 4),
-        _buildDropZone('face', 'Rosto', Icons.sentiment_neutral,
+        _buildDropZone('face', 'Rosto', Icons.sentiment_neutral, isDark,
             width: 80, height: 50),
         const SizedBox(height: 4),
         Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildDropZone('hands', 'Mãos', Icons.back_hand,
+            _buildDropZone('hands', 'Mãos', Icons.back_hand, isDark,
                 width: 60, height: 60),
             const SizedBox(width: 4),
-            _buildDropZone('torso', 'Tronco', Icons.accessibility_new,
+            _buildDropZone('torso', 'Tronco', Icons.accessibility_new, isDark,
                 width: 90, height: 80),
             const SizedBox(width: 4),
-            _buildDropZone('hands', 'Mãos', Icons.back_hand,
+            _buildDropZone('hands', 'Mãos', Icons.back_hand, isDark,
                 width: 60, height: 60),
           ],
         ),
         const SizedBox(height: 4),
-        _buildDropZone('feet', 'Pés', Icons.do_not_step,
+        _buildDropZone('feet', 'Pés', Icons.do_not_step, isDark,
             width: 90, height: 50),
       ],
     );
   }
 
-  Widget _buildDropZone(String zone, String label, IconData icon,
+  Widget _buildDropZone(String zone, String label, IconData icon, bool isDark,
       {required double width, required double height}) {
     final equipped = _isZoneEquipped(zone);
+
+    final emptyBg = isDark ? const Color(0xFF1E1E1E) : Colors.grey.shade100;
+    final hoverBg = isDark ? const Color(0xFF251A2E) : Colors.purple.shade50;
+    final filledBg = isDark ? const Color(0xFF1B3326) : Colors.green.shade50;
+    final emptyBorder = isDark ? const Color(0xFF333333) : Colors.grey.shade300;
+    final hoverBorder = isDark ? const Color(0xFF9050C0) : Colors.purple;
+    final iconMuted = isDark ? Colors.white30 : Colors.grey.shade500;
+    final labelColor = isDark ? Colors.white38 : Colors.grey.shade600;
 
     return DragTarget<_EpiItem>(
       onWillAcceptWithDetails: (_) => !equipped,
@@ -331,23 +340,22 @@ class _DressUpScreenState extends State<DressUpScreen> {
       builder: (context, candidateData, rejectedData) {
         final hovering = candidateData.isNotEmpty;
 
-        return AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
+        return Container(
           width: width,
           height: height,
           decoration: BoxDecoration(
             color: equipped
-                ? Colors.green.shade50
+                ? filledBg
                 : hovering
-                    ? Colors.purple.shade50
-                    : Colors.grey.shade100,
+                    ? hoverBg
+                    : emptyBg,
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
               color: equipped
                   ? Colors.green
                   : hovering
-                      ? Colors.purple
-                      : Colors.grey.shade300,
+                      ? hoverBorder
+                      : emptyBorder,
               width: 2,
             ),
           ),
@@ -356,12 +364,12 @@ class _DressUpScreenState extends State<DressUpScreen> {
             children: [
               Icon(
                 equipped ? Icons.check_circle : icon,
-                size: 20,
-                color: equipped ? Colors.green : Colors.grey.shade500,
+                size: 16,
+                color: equipped ? Colors.green : iconMuted,
               ),
               const SizedBox(height: 2),
               Text(label,
-                  style: TextStyle(fontSize: 10, color: Colors.grey.shade600)),
+                  style: TextStyle(fontSize: 10, color: labelColor)),
             ],
           ),
         );
@@ -369,30 +377,35 @@ class _DressUpScreenState extends State<DressUpScreen> {
     );
   }
 
-  Widget _buildDraggableItem(_EpiItem item) {
+  Widget _buildDraggableItem(_EpiItem item, bool isDark) {
     return Draggable<_EpiItem>(
       data: item,
       feedback: Material(
         elevation: 6,
         borderRadius: BorderRadius.circular(12),
-        child: _itemContent(item, dragging: true),
+        child: _itemContent(item, isDark: isDark, dragging: true),
       ),
       childWhenDragging: Opacity(
         opacity: 0.3,
-        child: _itemContent(item),
+        child: _itemContent(item, isDark: isDark),
       ),
-      child: _itemContent(item),
+      child: _itemContent(item, isDark: isDark),
     );
   }
 
-  Widget _itemContent(_EpiItem item, {bool dragging = false}) {
+  Widget _itemContent(_EpiItem item, {required bool isDark, bool dragging = false}) {
+    final cardBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
+    final borderColor = isDark ? const Color(0xFF5A3070) : Colors.purple.shade200;
+    final iconColor = isDark ? const Color(0xFFCE93D8) : Colors.purple;
+    final textColor = isDark ? Colors.white : Colors.black87;
+
     return Container(
-      width: 100,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+      width: 90,
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.purple.shade200),
+        border: Border.all(color: borderColor),
         boxShadow: dragging
             ? [
                 BoxShadow(
@@ -405,11 +418,11 @@ class _DressUpScreenState extends State<DressUpScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(item.icon, color: Colors.purple, size: 26),
+          Icon(item.icon, color: iconColor, size: 20),
           const SizedBox(height: 4),
           Text(item.label,
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500)),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: textColor)),
         ],
       ),
     );

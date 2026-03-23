@@ -184,7 +184,7 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
                             widget.miniGameId.contains('lavoura')
                                 ? Icons.agriculture
                                 : Icons.warehouse,
-                            size: 80,
+                            size: 56,
                             color: Colors.white24,
                           ),
                           const SizedBox(height: 8),
@@ -210,8 +210,7 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => _onHotspotTapped(hs),
-                      child: AnimatedContainer(
-                        duration: const Duration(milliseconds: 300),
+                      child: Container(
                         decoration: BoxDecoration(
                           color: found
                               ? Colors.green.withValues(alpha: 0.3)
@@ -224,7 +223,7 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
                         child: found
                             ? const Center(
                                 child: Icon(Icons.check_circle,
-                                    color: Colors.white, size: 32),
+                                    color: Colors.white, size: 24),
                               )
                             : null,
                       ),
