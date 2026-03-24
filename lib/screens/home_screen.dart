@@ -14,13 +14,13 @@ class HomeScreen extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     // Adaptive colors
-    final bgColor = isDark ? const Color(0xFF121212) : const Color(0xFFFAF8F5);
-    final headerColor = isDark ? const Color(0xFF1A1A1A) : const Color(0xFF1B4332);
+    final bgColor = isDark ? const Color(0xFF121212) : const Color(0xFFF1F8E9); // Light green tint
+    final headerColor = isDark ? const Color(0xFF2E7D32) : const Color(0xFF4CAF50); // Bright green
     final cardBg = isDark ? const Color(0xFF1E1E1E) : Colors.white;
-    final cardBorder = isDark ? const Color(0xFF2E2E2E) : const Color(0xFFE0DCD7);
+    final cardBorder = isDark ? const Color(0xFF2E2E2E) : const Color(0xFFE0E0E0);
     final textPrimary = isDark ? Colors.white : const Color(0xFF2B2B2B);
-    final textSecondary = isDark ? Colors.white60 : const Color(0xFF6B6B6B);
-    final accentGreen = isDark ? const Color(0xFF52B788) : const Color(0xFF2D6A4F);
+    final textSecondary = isDark ? Colors.white60 : const Color(0xFF555555);
+    final accentGreen = isDark ? const Color(0xFF81C784) : const Color(0xFF4CAF50);
     final sectionLabel = isDark ? Colors.white38 : const Color(0xFF6B6B6B);
 
     return Scaffold(
@@ -63,10 +63,10 @@ class HomeScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Encontre os erros e aprenda boas práticas',
+                            'Ache os erros e aprenda boas práticas!',
                             style: TextStyle(
-                              fontSize: 13,
-                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 14,
+                              color: Colors.white.withValues(alpha: 0.9),
                             ),
                           ),
                           const SizedBox(height: 12),
@@ -133,32 +133,32 @@ class HomeScreen extends StatelessWidget {
                     final crossCount = width >= 500 ? 2 : 1;
                     final spacing = 12.0;
                     final cardWidth = (width - spacing * (crossCount - 1)) / crossCount;
-                    final rawHeight = cardWidth * 0.42;
-                    final cardHeight = crossCount == 2 ? rawHeight.clamp(100.0, 140.0) : 72.0;
+                    final rawHeight = cardWidth * 0.45;
+                    final cardHeight = crossCount == 2 ? rawHeight.clamp(160.0, 220.0) : 100.0;
 
                     final cards = [
                       _GameCardData(
                         icon: Icons.agriculture,
-                        title: 'Jogo dos Erros — Lavoura',
-                        description: 'Encontre as infrações na cena da lavoura',
+                        title: 'Erros na Lavoura',
+                        description: 'Ache os erros no campo!',
                         route: '/jogo-erros/lavoura',
                       ),
                       _GameCardData(
                         icon: Icons.warehouse,
-                        title: 'Jogo dos Erros — Depósito',
-                        description: 'Identifique os problemas no depósito',
+                        title: 'Erros no Depósito',
+                        description: 'Ache os problemas aqui!',
                         route: '/jogo-erros/deposito',
                       ),
                       _GameCardData(
                         icon: Icons.recycling,
                         title: 'Jornada da Embalagem',
-                        description: 'Ordene os passos do descarte correto',
+                        description: 'Jogue o lixo no lugar certo!',
                         route: '/jornada-embalagem',
                       ),
                       _GameCardData(
                         icon: Icons.checkroom,
-                        title: 'Vista-se Corretamente',
-                        description: 'Equipe o trabalhador com o EPI certo',
+                        title: 'Vista o Trabalhador',
+                        description: 'Coloque a roupa certa!',
                         route: '/vista-se',
                       ),
                     ];
@@ -198,29 +198,25 @@ class HomeScreen extends StatelessWidget {
               // ─── Ranking Button ──────────────────────────────
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextButton(
+                child: FilledButton.icon(
                   onPressed: () => context.go('/ranking'),
-                  style: TextButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFFFF9800), // Vibrant Orange
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      side: BorderSide(color: cardBorder),
+                      borderRadius: BorderRadius.circular(24),
                     ),
+                    elevation: 4,
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.leaderboard_outlined, size: 18, color: accentGreen),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Ver Ranking',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: accentGreen,
-                        ),
-                      ),
-                    ],
+                  icon: const Icon(Icons.leaderboard_rounded, size: 28),
+                  label: const Text(
+                    'Ver Ranking',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.5,
+                    ),
                   ),
                 ),
               ),
@@ -245,20 +241,28 @@ class HomeScreen extends StatelessWidget {
   ) {
     return Material(
       color: cardBg,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(24),
+      elevation: 2,
       child: InkWell(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(24),
         onTap: () => context.go(data.route),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: cardBorder),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: cardBorder, width: 2),
           ),
           child: Row(
             children: [
-              Icon(data.icon, size: 20, color: accent),
-              const SizedBox(width: 14),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(data.icon, size: 36, color: accent),
+              ),
+              const SizedBox(width: 16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -300,20 +304,28 @@ class HomeScreen extends StatelessWidget {
   ) {
     return Material(
       color: cardBg,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(24),
+      elevation: 2,
       child: InkWell(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
         onTap: () => context.go(data.route),
         child: Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: cardBorder),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: cardBorder, width: 2),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(data.icon, size: 24, color: accent),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: accent.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(data.icon, size: 42, color: accent),
+              ),
               const Spacer(),
               Text(
                 data.title,

@@ -137,7 +137,7 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
       context: context,
       barrierDismissible: !isCompletion,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         icon: Icon(
           isCompletion
               ? Icons.emoji_events
@@ -149,10 +149,18 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
               : success
                   ? Colors.green
                   : Colors.red,
-          size: 48,
+          size: 64,
         ),
-        title: Text(success ? 'Muito bem!' : 'Ops!'),
-        content: Text(message, textAlign: TextAlign.center),
+        title: Text(
+          success ? 'Muito bem!' : 'Ops!',
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
           if (isCompletion)
             FilledButton(
@@ -160,12 +168,21 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
                 Navigator.of(ctx).pop();
                 context.go('/');
               },
-              child: const Text('Voltar ao menu'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                backgroundColor: const Color(0xFFFF9800), // Vibrant Orange
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              ),
+              child: const Text('Voltar ao menu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
             )
           else
-            TextButton(
+            FilledButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('OK'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              ),
+              child: const Text('OK', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
         ],
       ),
@@ -194,17 +211,18 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
           children: [
             // Instructions.
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF1A2733) : const Color(0xFFE3F2FD),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(24),
               ),
               child: Text(
-                'Arraste os cards para a sequência correta. Cuidado com os cards errados!',
+                'Arraste as cartas para a sequência certa. Cuidado com as erradas!',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodyLarge?.copyWith(
                   color: isDark ? const Color(0xFF90CAF9) : const Color(0xFF1565C0),
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 18,
                 ),
               ),
             ),
@@ -278,14 +296,14 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
                 : isHovering
                     ? hoverBg
                     : emptyBg,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: placed != null
                   ? Colors.green
                   : isHovering
                       ? hoverBorder
                       : emptyBorder,
-              width: 2,
+              width: 3,
             ),
           ),
           padding: const EdgeInsets.all(8),
@@ -351,12 +369,13 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
 
     return Container(
       width: 100,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 6),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: card.isCorrect ? correctBg : incorrectBg,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: card.isCorrect ? correctBorder : incorrectBorder,
+          width: 2,
         ),
         boxShadow: dragging
             ? [
@@ -369,7 +388,7 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(card.icon,
-              color: card.isCorrect ? iconCorrect : iconIncorrect, size: 22),
+              color: card.isCorrect ? iconCorrect : iconIncorrect, size: 28),
           const SizedBox(height: 6),
           Text(card.label,
               textAlign: TextAlign.center,

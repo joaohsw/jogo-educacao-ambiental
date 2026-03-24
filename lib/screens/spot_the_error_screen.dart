@@ -66,20 +66,32 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
     await showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         icon: Icon(
           success ? Icons.check_circle : Icons.cancel,
           color: success ? Colors.green : Colors.red,
-          size: 48,
+          size: 64,
         ),
-        title: Text(success ? 'Parabéns!' : 'Errou!'),
-        content: Text(message, textAlign: TextAlign.center),
+        title: Text(
+          success ? 'Parabéns!' : 'Errou!',
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
         actions: [
-          TextButton(
+          FilledButton(
             onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('OK'),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+            ),
+            child: const Text('OK', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
           ),
         ],
+        actionsAlignment: MainAxisAlignment.center,
       ),
     );
 
@@ -90,13 +102,16 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
         context: context,
         barrierDismissible: false,
         builder: (ctx) => AlertDialog(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          icon: const Icon(Icons.emoji_events, color: Colors.amber, size: 56),
-          title: const Text('Fase completa!'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+          icon: const Icon(Icons.emoji_events, color: Colors.amber, size: 72),
+          title: const Text(
+            'Fase completa!',
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          ),
           content: Text(
             'Você encontrou todos os $_totalErrors erros nesta cena!',
             textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16),
           ),
           actions: [
             FilledButton(
@@ -104,9 +119,16 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
                 Navigator.of(ctx).pop();
                 context.go('/');
               },
-              child: const Text('Voltar ao menu'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                backgroundColor: const Color(0xFFFF9800), // Vibrant Orange
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              ),
+              child: const Text('Voltar ao menu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
           ],
+          actionsAlignment: MainAxisAlignment.center,
         ),
       );
     }

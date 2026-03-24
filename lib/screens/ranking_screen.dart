@@ -47,12 +47,15 @@ class RankingScreen extends StatelessWidget {
           children: [
             // ─── Current session ────────────────────────────
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF1B5E20), Color(0xFF388E3C)],
+                  colors: [Color(0xFF4CAF50), Color(0xFF81C784)],
                 ),
-                borderRadius: BorderRadius.circular(16),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: const [
+                  BoxShadow(color: Colors.black12, blurRadius: 8, offset: Offset(0, 4))
+                ],
               ),
               child: Column(
                 children: [
@@ -99,7 +102,8 @@ class RankingScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(32),
                 decoration: BoxDecoration(
                   color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(color: Colors.grey.shade300, width: 2),
                 ),
                 child: Column(
                   children: [
@@ -119,9 +123,10 @@ class RankingScreen extends StatelessWidget {
                 final rank = entry.key + 1;
                 final score = entry.value;
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 8),
+                  margin: const EdgeInsets.only(bottom: 12),
+                  elevation: 2,
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(24)),
                   child: ListTile(
                     leading: CircleAvatar(
                       backgroundColor: rank == 1

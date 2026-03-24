@@ -161,7 +161,7 @@ class _DressUpScreenState extends State<DressUpScreen> {
       context: context,
       barrierDismissible: !isCompletion,
       builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         icon: Icon(
           isCompletion
               ? Icons.emoji_events
@@ -173,10 +173,18 @@ class _DressUpScreenState extends State<DressUpScreen> {
               : success
                   ? Colors.green
                   : Colors.red,
-          size: 48,
+          size: 64,
         ),
-        title: Text(success ? 'Correto!' : 'Incorreto!'),
-        content: Text(message, textAlign: TextAlign.center),
+        title: Text(
+          success ? 'Correto!' : 'Incorreto!',
+          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          message,
+          textAlign: TextAlign.center,
+          style: const TextStyle(fontSize: 16),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
         actions: [
           if (isCompletion)
             FilledButton(
@@ -184,12 +192,21 @@ class _DressUpScreenState extends State<DressUpScreen> {
                 Navigator.of(ctx).pop();
                 context.go('/');
               },
-              child: const Text('Voltar ao menu'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                backgroundColor: const Color(0xFFFF9800), // Vibrant Orange
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              ),
+              child: const Text('Voltar ao menu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800)),
             )
           else
-            TextButton(
+            FilledButton(
               onPressed: () => Navigator.of(ctx).pop(),
-              child: const Text('OK'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              ),
+              child: const Text('OK', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             ),
         ],
       ),
@@ -237,17 +254,18 @@ class _DressUpScreenState extends State<DressUpScreen> {
           children: [
             // Instructions
             Container(
-              padding: const EdgeInsets.all(14),
+              padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: isDark ? const Color(0xFF251A2E) : const Color(0xFFF3E5F5),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(24),
               ),
               child: Text(
-                'Arraste os itens corretos de EPI para a parte do corpo correspondente do avatar.',
+                'Arraste a roupa certa para a parte certa do boneco!',
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodyLarge?.copyWith(
                   color: isDark ? const Color(0xFFCE93D8) : const Color(0xFF6A1B9A),
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 18,
                 ),
               ),
             ),
@@ -349,14 +367,14 @@ class _DressUpScreenState extends State<DressUpScreen> {
                 : hovering
                     ? hoverBg
                     : emptyBg,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: equipped
                   ? Colors.green
                   : hovering
                       ? hoverBorder
                       : emptyBorder,
-              width: 2,
+              width: 3,
             ),
           ),
           child: Column(
@@ -364,12 +382,12 @@ class _DressUpScreenState extends State<DressUpScreen> {
             children: [
               Icon(
                 equipped ? Icons.check_circle : icon,
-                size: 16,
+                size: 24,
                 color: equipped ? Colors.green : iconMuted,
               ),
               const SizedBox(height: 2),
               Text(label,
-                  style: TextStyle(fontSize: 10, color: labelColor)),
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: labelColor)),
             ],
           ),
         );
@@ -400,12 +418,12 @@ class _DressUpScreenState extends State<DressUpScreen> {
     final textColor = isDark ? Colors.white : Colors.black87;
 
     return Container(
-      width: 90,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+      width: 100,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       decoration: BoxDecoration(
         color: cardBg,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: borderColor),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: borderColor, width: 2),
         boxShadow: dragging
             ? [
                 BoxShadow(
@@ -418,11 +436,11 @@ class _DressUpScreenState extends State<DressUpScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(item.icon, color: iconColor, size: 20),
-          const SizedBox(height: 4),
+          Icon(item.icon, color: iconColor, size: 28),
+          const SizedBox(height: 6),
           Text(item.label,
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: textColor)),
+              style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: textColor)),
         ],
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'navigation/app_router.dart';
 import 'state/game_state.dart';
@@ -31,33 +32,50 @@ class DetetiveNaPropriedadeApp extends StatelessWidget {
   }
 
   ThemeData _lightTheme() {
-    return ThemeData(
+    final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.light,
-      colorSchemeSeed: const Color(0xFF1B4332),
-      scaffoldBackgroundColor: const Color(0xFFFAF8F5),
-      fontFamily: 'Roboto',
+      colorSchemeSeed: const Color(0xFF4CAF50), // Brighter, fun green
+      scaffoldBackgroundColor: const Color(0xFFF1F8E9), // Light green tint
+    );
+    return baseTheme.copyWith(
+      textTheme: GoogleFonts.nunitoTextTheme(baseTheme.textTheme),
       appBarTheme: const AppBarTheme(
-        backgroundColor: Color(0xFF1B4332),
+        backgroundColor: Color(0xFF4CAF50),
         foregroundColor: Colors.white,
         elevation: 0,
+      ),
+      cardTheme: CardThemeData(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        elevation: 2,
       ),
     );
   }
 
   ThemeData _darkTheme() {
-    return ThemeData(
+    final baseTheme = ThemeData(
       useMaterial3: true,
       brightness: Brightness.dark,
-      colorSchemeSeed: const Color(0xFF2D6A4F),
+      colorSchemeSeed: const Color(0xFF81C784), // Brighter dark green
       scaffoldBackgroundColor: const Color(0xFF121212),
-      fontFamily: 'Roboto',
+    );
+    return baseTheme.copyWith(
+      textTheme: GoogleFonts.nunitoTextTheme(baseTheme.textTheme),
       appBarTheme: const AppBarTheme(
         backgroundColor: Color(0xFF1A1A1A),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
       cardColor: const Color(0xFF1E1E1E),
+      cardTheme: CardThemeData(
+        color: const Color(0xFF1E1E1E),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        elevation: 2,
+      ),
     );
   }
 }
