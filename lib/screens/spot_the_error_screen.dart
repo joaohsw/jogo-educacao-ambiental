@@ -1,4 +1,7 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
@@ -32,11 +35,58 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
   /// IDs of hotspots that have already been found.
   final Set<String> _foundIds = {};
 
+  Size? _backgroundImageSize;
+
   int get _totalErrors => widget.hotspots.length;
   int get _foundErrors => _foundIds.length;
   bool get _allFound => _foundErrors == _totalErrors;
 
-  // ─── Handlers ──────────────────────────────────────────────
+  @override
+  void initState() {
+    super.initState();
+    _loadBackgroundImageSize();
+  }
+
+  @override
+  void didUpdateWidget(covariant SpotTheErrorScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.backgroundAsset != widget.backgroundAsset) {
+      _loadBackgroundImageSize();
+    }
+  }
+
+  Future<void> _loadBackgroundImageSize() async {
+    final backgroundAsset = widget.backgroundAsset;
+    if (backgroundAsset == null) {
+      if (mounted) {
+        setState(() => _backgroundImageSize = null);
+      }
+      return;
+    }
+
+    final bytes = await rootBundle.load(backgroundAsset);
+    final codec = await ui.instantiateImageCodec(bytes.buffer.asUint8List());
+    final frameInfo = await codec.getNextFrame();
+    final image = frameInfo.image;
+
+    if (!mounted) return;
+    setState(
+      () => _backgroundImageSize =
+          Size(image.width.toDouble(), image.height.toDouble()),
+    );
+  }
+
+  Rect _computeImageRect(Size viewport) {
+    final imageSize = _backgroundImageSize;
+    if (imageSize == null) {
+      return Offset.zero & viewport;
+    }
+
+    final fitted = applyBoxFit(BoxFit.cover, imageSize, viewport);
+    return Alignment.center.inscribe(fitted.destination, Offset.zero & viewport);
+  }
+
+  // Handlers
 
   void _onHotspotTapped(HotspotConfig hotspot) {
     if (_foundIds.contains(hotspot.id)) return; // already found
@@ -55,7 +105,7 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
   void _onBackgroundTapped() {
     _showResultDialog(
       success: false,
-      message: 'Opa! Não foi desta vez, tente de novo!',
+      message: 'Opa! Nao foi desta vez, tente de novo!',
     );
   }
 
@@ -73,7 +123,7 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
           size: 64,
         ),
         title: Text(
-          success ? 'Parabéns!' : 'Errou!',
+          success ? 'ParabÃ©ns!' : 'Errou!',
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         content: Text(
@@ -109,7 +159,7 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           content: Text(
-            'Você encontrou todos os $_totalErrors erros nesta cena!',
+            'Voce encontrou todos os $_totalErrors erros nesta cena!',
             textAlign: TextAlign.center,
             style: const TextStyle(fontSize: 16),
           ),
@@ -134,7 +184,7 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
     }
   }
 
-  // ─── Build ─────────────────────────────────────────────────
+  // Build
 
   @override
   Widget build(BuildContext context) {
@@ -161,11 +211,15 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
+          final viewportSize =
+              Size(constraints.maxWidth, constraints.maxHeight);
+          final imageRect = _computeImageRect(viewportSize);
+
           return GestureDetector(
             onTapUp: (_) => _onBackgroundTapped(),
             child: Stack(
               children: [
-                // Background — real image or placeholder gradient.
+                // Background: real image or placeholder gradient.
                 if (widget.backgroundAsset != null)
                   SizedBox(
                     width: constraints.maxWidth,
@@ -225,10 +279,10 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
                 ...widget.hotspots.map((hs) {
                   final found = _foundIds.contains(hs.id);
                   return Positioned(
-                    left: hs.relativeX * constraints.maxWidth,
-                    top: hs.relativeY * constraints.maxHeight,
-                    width: hs.relativeWidth * constraints.maxWidth,
-                    height: hs.relativeHeight * constraints.maxHeight,
+                    left: imageRect.left + hs.relativeX * imageRect.width,
+                    top: imageRect.top + hs.relativeY * imageRect.height,
+                    width: hs.relativeWidth * imageRect.width,
+                    height: hs.relativeHeight * imageRect.height,
                     child: GestureDetector(
                       behavior: HitTestBehavior.opaque,
                       onTap: () => _onHotspotTapped(hs),
