@@ -139,7 +139,11 @@ class _DressUpScreenState extends State<DressUpScreen> {
       _availableItems.removeWhere((i) => i.id == item.id);
     });
 
-    context.read<GameState>().addScore('vista_se', 10);
+    context.read<GameState>().addScoreForAction(
+          miniGameId: 'vista_se',
+          actionId: 'epi:${item.id}',
+          points: 10,
+        );
 
     if (_equippedCorrect == _totalCorrect) {
       setState(() => _completed = true);

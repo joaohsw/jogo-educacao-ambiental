@@ -114,7 +114,11 @@ class _PackagingJourneyScreenState extends State<PackagingJourneyScreen> {
       _availableCards.removeWhere((c) => c.id == card.id);
     });
 
-    context.read<GameState>().addScore('jornada_embalagem', 10);
+    context.read<GameState>().addScoreForAction(
+          miniGameId: 'jornada_embalagem',
+          actionId: 'card:${card.id}',
+          points: 10,
+        );
 
     // Check completion.
     if (_placedCards.every((c) => c != null)) {

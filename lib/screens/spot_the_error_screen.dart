@@ -44,15 +44,36 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
   @override
   void initState() {
     super.initState();
+    _restoreFoundHotspots();
     _loadBackgroundImageSize();
   }
 
   @override
   void didUpdateWidget(covariant SpotTheErrorScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.miniGameId != widget.miniGameId ||
+        oldWidget.hotspots != widget.hotspots) {
+      _restoreFoundHotspots();
+    }
     if (oldWidget.backgroundAsset != widget.backgroundAsset) {
       _loadBackgroundImageSize();
     }
+  }
+
+  void _restoreFoundHotspots() {
+    final gameState = context.read<GameState>();
+    _foundIds
+      ..clear()
+      ..addAll(
+        widget.hotspots
+            .where(
+              (hs) => gameState.wasActionScored(
+                widget.miniGameId,
+                'hotspot:${hs.id}',
+              ),
+            )
+            .map((hs) => hs.id),
+      );
   }
 
   Future<void> _loadBackgroundImageSize() async {
@@ -91,7 +112,11 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
 
     setState(() => _foundIds.add(hotspot.id));
 
-    context.read<GameState>().addScore(widget.miniGameId, 10);
+    context.read<GameState>().addScoreForAction(
+          miniGameId: widget.miniGameId,
+          actionId: 'hotspot:${hotspot.id}',
+          points: 10,
+        );
 
     _showResultDialog(
       success: true,

@@ -21,6 +21,7 @@ class HomeScreen extends StatelessWidget {
     final textPrimary = isDark ? Colors.white : const Color(0xFF2B2B2B);
     final textSecondary = isDark ? Colors.white60 : const Color(0xFF555555);
     final accentGreen = isDark ? const Color(0xFF81C784) : const Color(0xFF4CAF50);
+    final headerIconColor = isDark ? accentGreen : Colors.white;
     final sectionLabel = isDark ? Colors.white38 : const Color(0xFF6B6B6B);
 
     return Scaffold(
@@ -48,7 +49,7 @@ class HomeScreen extends StatelessWidget {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.search, size: 24, color: accentGreen),
+                              Icon(Icons.search, size: 24, color: headerIconColor),
                               const SizedBox(width: 8),
                               const Text(
                                 'Detetive na Propriedade',

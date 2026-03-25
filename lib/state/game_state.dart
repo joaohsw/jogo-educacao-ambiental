@@ -39,6 +39,13 @@ class GameState extends ChangeNotifier {
   // Leaderboard entries.
   final List<ScoreEntry> _leaderboard = [];
 
+  /// Tracks already-scored actions for each mini-game.
+  ///
+  /// Example keys:
+  /// - jogo_erros_lavoura -> {"hotspot:epi_incompleto", ...}
+  /// - jornada_embalagem -> {"card:triplice", ...}
+  final Map<String, Set<String>> _scoredActions = {};
+
   // Current player name (can be set from a future settings screen).
   String _playerName = 'Jogador';
 
@@ -59,10 +66,37 @@ class GameState extends ChangeNotifier {
     }
   }
 
+  /// Awards [points] only once for the pair ([miniGameId], [actionId]).
+  ///
+  /// Returns true when the score was applied, false when that action had
+  /// already been scored before.
+  bool addScoreForAction({
+    required String miniGameId,
+    required String actionId,
+    required int points,
+  }) {
+    if (!_scores.containsKey(miniGameId)) return false;
+
+    final actions = _scoredActions.putIfAbsent(miniGameId, () => <String>{});
+    if (actions.contains(actionId)) return false;
+
+    actions.add(actionId);
+    _scores[miniGameId] = _scores[miniGameId]! + points;
+    notifyListeners();
+    return true;
+  }
+
+  /// Returns whether [actionId] was already scored in [miniGameId].
+  bool wasActionScored(String miniGameId, String actionId) {
+    final actions = _scoredActions[miniGameId];
+    return actions != null && actions.contains(actionId);
+  }
+
   /// Reset a single mini-game score.
   void resetMiniGameScore(String miniGameId) {
     if (_scores.containsKey(miniGameId)) {
       _scores[miniGameId] = 0;
+      _scoredActions.remove(miniGameId);
       notifyListeners();
     }
   }
@@ -72,6 +106,7 @@ class GameState extends ChangeNotifier {
     for (final key in _scores.keys) {
       _scores[key] = 0;
     }
+    _scoredActions.clear();
     notifyListeners();
   }
 
