@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android local/tooling files
+/android/.gradle/
+/android/local.properties
+/android/key.properties
+
+# Safety net: prevent accidental SDK commits inside repo
+/flutter/
+/android-sdk/
+/sdk/
+/jdk/
