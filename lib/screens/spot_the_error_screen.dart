@@ -86,14 +86,11 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
     return Alignment.center.inscribe(fitted.destination, Offset.zero & viewport);
   }
 
-  // Handlers
-
   void _onHotspotTapped(HotspotConfig hotspot) {
-    if (_foundIds.contains(hotspot.id)) return; // already found
+    if (_foundIds.contains(hotspot.id)) return;
 
     setState(() => _foundIds.add(hotspot.id));
 
-    // Award points.
     context.read<GameState>().addScore(widget.miniGameId, 10);
 
     _showResultDialog(
@@ -123,7 +120,7 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
           size: 64,
         ),
         title: Text(
-          success ? 'ParabÃ©ns!' : 'Errou!',
+          success ? 'Parabens!' : 'Errou!',
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         content: Text(
@@ -136,16 +133,20 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
             onPressed: () => Navigator.of(ctx).pop(),
             style: FilledButton.styleFrom(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
             ),
-            child: const Text('OK', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'OK',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
         actionsAlignment: MainAxisAlignment.center,
       ),
     );
 
-    // Check if the player found everything.
     if (_allFound) {
       if (!mounted) return;
       await showDialog<void>(
@@ -171,11 +172,16 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
               },
               style: FilledButton.styleFrom(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                backgroundColor: const Color(0xFFFF9800), // Vibrant Orange
+                backgroundColor: const Color(0xFFFF9800),
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
               ),
-              child: const Text('Voltar ao menu', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'Voltar ao menu',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
             ),
           ],
           actionsAlignment: MainAxisAlignment.center,
@@ -183,8 +189,6 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
       );
     }
   }
-
-  // Build
 
   @override
   Widget build(BuildContext context) {
@@ -211,15 +215,13 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final viewportSize =
-              Size(constraints.maxWidth, constraints.maxHeight);
+          final viewportSize = Size(constraints.maxWidth, constraints.maxHeight);
           final imageRect = _computeImageRect(viewportSize);
 
           return GestureDetector(
             onTapUp: (_) => _onBackgroundTapped(),
             child: Stack(
               children: [
-                // Background: real image or placeholder gradient.
                 if (widget.backgroundAsset != null)
                   SizedBox(
                     width: constraints.maxWidth,
@@ -275,7 +277,6 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
                     ),
                   ),
 
-                // Hotspot overlays.
                 ...widget.hotspots.map((hs) {
                   final found = _foundIds.contains(hs.id);
                   return Positioned(
@@ -298,8 +299,11 @@ class _SpotTheErrorScreenState extends State<SpotTheErrorScreen> {
                         ),
                         child: found
                             ? const Center(
-                                child: Icon(Icons.check_circle,
-                                    color: Colors.white, size: 24),
+                                child: Icon(
+                                  Icons.check_circle,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
                               )
                             : null,
                       ),
