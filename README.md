@@ -1,62 +1,62 @@
 # Detetive na Propriedade
 
-Jogo educativo em Flutter com minijogos sobre uso seguro, armazenamento e descarte correto de agrotóxicos.
+Jogo educativo em Flutter com minijogos sobre uso seguro, armazenamento e descarte correto de agrotoxicos.
 
 ## Objetivo
 
-Este projeto tem como objetivo conscientizar alunos do ensino fundamental do Rio Grande do Sul sobre:
+Este projeto busca conscientizar alunos do ensino fundamental sobre:
 
-- armazenamento correto de agrotóxicos;
+- armazenamento correto de agrotoxicos;
 - descarte correto de embalagens;
-- riscos de práticas inseguras no campo e no depósito;
-- uso adequado de EPI (equipamentos de proteção individual).
+- riscos de praticas inseguras no campo e no deposito;
+- uso adequado de EPI (equipamentos de protecao individual).
 
-O foco é aprendizagem prática por meio de interação, com linguagem simples e feedback imediato.
+O foco e aprendizagem pratica por meio de interacao, com linguagem simples e feedback imediato.
 
-## Público-alvo
+## Publico-alvo
 
 - Alunos do ensino fundamental (principal);
-- Professores e equipes escolares que desejam usar o jogo como apoio didático em educação ambiental e saúde no campo.
+- Professores e equipes escolares que desejam usar o jogo como apoio didatico em educacao ambiental e saude no campo.
 
-## Minijogos disponíveis
+## Minijogos disponiveis
 
 1. Jogo dos Erros - Lavoura
-- O aluno identifica práticas incorretas em uma cena de campo.
+- O aluno identifica praticas incorretas em uma cena de campo.
 
-2. Jogo dos Erros - Depósito
+2. Jogo dos Erros - Deposito
 - O aluno identifica problemas em uma cena de armazenamento.
 
 3. Jornada da Embalagem
-- O aluno organiza a sequência correta de pós-uso das embalagens.
+- O aluno organiza a sequencia correta de pos-uso das embalagens.
 
 4. Vista-se Corretamente
 - O aluno equipa o trabalhador com os EPIs adequados.
 
-## Regras de pontuação (estado atual)
+## Regras de pontuacao (estado atual)
 
 - Cada acerto vale pontos.
-- Pontuação total é consolidada no menu e no ranking.
-- A pontuação foi protegida contra exploração por repetição:
-  cada ação correta pontua apenas uma vez por sessão, mesmo ao sair e voltar do minijogo.
+- Pontuacao total e consolidada no menu e no ranking.
+- A pontuacao foi protegida contra exploracao por repeticao:
+  cada acao correta pontua apenas uma vez por sessao, mesmo ao sair e voltar do minijogo.
 
-## Funcionalidades já implementadas
+## Funcionalidades implementadas
 
 - Menu inicial com acesso aos minijogos.
 - Modo claro e modo escuro.
-- Sistema de pontuação por minijogo e pontuação total.
-- Ranking de sessões.
-- Navegação com rotas nomeadas.
-- Duas cenas ilustradas para o modo "Jogo dos Erros" com hotspots configuráveis.
+- Sistema de pontuacao por minijogo e pontuacao total.
+- Ranking de sessoes.
+- Navegacao com rotas nomeadas.
+- Duas cenas ilustradas para o modo "Jogo dos Erros" com hotspots configuraveis.
 
-## Estrutura principal do projeto
+## Estrutura principal
 
 ```text
 lib/
-  data/                # Configuração de cenas e hotspots
+  data/                # Configuracao de cenas e hotspots
   models/              # Modelos de dados
   navigation/          # Rotas do app
   screens/             # Telas e minijogos
-  state/               # Estado global (pontuação, tema, ranking)
+  state/               # Estado global (pontuacao, tema, ranking)
 ```
 
 ## Tecnologias
@@ -64,22 +64,34 @@ lib/
 - Flutter
 - Dart
 - Provider (gerenciamento de estado)
-- go_router (navegação)
+- go_router (navegacao)
 
-## Como executar
+## Plataforma alvo
 
-Pré-requisitos:
+Este projeto e suportado apenas na plataforma web (HTML).
+
+## Como executar (web)
+
+Pre-requisitos:
 
 - Flutter SDK instalado
-- Dispositivo/emulador configurado
+- Navegador Chrome ou Edge instalado
 
 Comandos:
 
 ```bash
 flutter pub get
-flutter run
+flutter run -d chrome
 ```
+
+## Build para publicacao web
+
+```bash
+flutter build web
+```
+
+Os arquivos finais sao gerados em `build/web/`.
 
 ## Status
 
-Projeto em desenvolvimento ativo. A base jogável está funcional e já cobre os principais fluxos pedagógicos definidos até aqui.
+Projeto em desenvolvimento ativo. A base jogavel cobre os principais fluxos pedagogicos definidos ate aqui.
