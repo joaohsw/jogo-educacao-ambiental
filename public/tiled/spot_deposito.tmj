@@ -1,0 +1,102 @@
+{
+  "compressionlevel": -1,
+  "height": 600,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "hotspots",
+      "objects": [
+        {
+          "height": 144,
+          "id": 1,
+          "name": "veneno_junto_alimentos",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Correto! Agrotoxicos nunca devem ficar junto com alimentos."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 380,
+          "x": 240,
+          "y": 198
+        },
+        {
+          "height": 150,
+          "id": 2,
+          "name": "animais_no_deposito",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Muito bem! Animais nao podem entrar no deposito."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 230,
+          "x": 750,
+          "y": 438
+        },
+        {
+          "height": 162,
+          "id": 3,
+          "name": "embalagens_no_chao",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Correto! Embalagens precisam ficar fechadas e organizadas."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 280,
+          "x": 460,
+          "y": 414
+        },
+        {
+          "height": 216,
+          "id": 4,
+          "name": "equipamento_no_deposito",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Muito bem! Equipamentos de aplicacao nao devem ser guardados no deposito."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 230,
+          "x": 650,
+          "y": 204
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 2,
+  "nextobjectid": 5,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.10.2",
+  "tileheight": 1,
+  "tilesets": [],
+  "tilewidth": 1,
+  "type": "map",
+  "version": "1.10",
+  "width": 1000
+}

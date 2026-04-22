@@ -1,97 +1,77 @@
-# Detetive na Propriedade
+# Detetive na Propriedade (Web)
 
-Jogo educativo em Flutter com minijogos sobre uso seguro, armazenamento e descarte correto de agrotoxicos.
+Remake completo do jogo educativo para navegador usando:
+
+- TypeScript
+- Phaser 3
+- Vite
+- Tiled (mapas `.tmj`)
+- Audio nativo do Phaser
 
 ## Objetivo
 
-Este projeto busca conscientizar alunos do ensino fundamental sobre:
+Conscientizar alunos do ensino fundamental sobre:
 
-- armazenamento correto de agrotoxicos;
+- armazenamento seguro de agrotoxicos;
 - descarte correto de embalagens;
-- riscos de praticas inseguras no campo e no deposito;
-- uso adequado de EPI (equipamentos de protecao individual).
+- riscos de praticas inseguras na lavoura e no deposito;
+- uso correto de EPI.
 
-O foco e aprendizagem pratica por meio de interacao, com linguagem simples e feedback imediato.
-
-## Publico-alvo
-
-- Alunos do ensino fundamental (principal);
-- Professores e equipes escolares que desejam usar o jogo como apoio didatico em educacao ambiental e saude no campo.
-
-## Minijogos disponiveis
+## Minijogos
 
 1. Jogo dos Erros - Lavoura
-- O aluno identifica praticas incorretas em uma cena de campo.
-
 2. Jogo dos Erros - Deposito
-- O aluno identifica problemas em uma cena de armazenamento.
-
 3. Jornada da Embalagem
-- O aluno organiza a sequencia correta de pos-uso das embalagens.
-
 4. Vista-se Corretamente
-- O aluno equipa o trabalhador com os EPIs adequados.
 
-## Regras de pontuacao (estado atual)
+## Pontuacao e ranking
 
-- Cada acerto vale pontos.
-- Pontuacao total e consolidada no menu e no ranking.
-- A pontuacao foi protegida contra exploracao por repeticao:
-  cada acao correta pontua apenas uma vez por sessao, mesmo ao sair e voltar do minijogo.
+- Cada acerto vale `+10`.
+- A mesma acao correta nao pontua duas vezes na mesma sessao.
+- Pontuacao total e por minijogo ficam no estado global.
+- Ranking e nome do jogador ficam em `localStorage`.
 
-## Funcionalidades implementadas
+## Rodando localmente
 
-- Menu inicial com acesso aos minijogos.
-- Modo claro e modo escuro.
-- Sistema de pontuacao por minijogo e pontuacao total.
-- Ranking de sessoes.
-- Navegacao com rotas nomeadas.
-- Duas cenas ilustradas para o modo "Jogo dos Erros" com hotspots configuraveis.
+Pre-requisito: Node.js 20+.
+
+```bash
+npm install
+npm run dev
+```
+
+Depois abra o endereco mostrado no terminal do Vite (normalmente `http://localhost:5173`).
+
+## Build de producao
+
+```bash
+npm run build
+npm run preview
+```
 
 ## Estrutura principal
 
 ```text
-lib/
-  data/                # Configuracao de cenas e hotspots
-  models/              # Modelos de dados
-  navigation/          # Rotas do app
-  screens/             # Telas e minijogos
-  state/               # Estado global (pontuacao, tema, ranking)
+public/
+  audio/               # Efeitos sonoros (.wav)
+  images/              # Cenas de fundo
+  tiled/               # Mapas Tiled (.tmj)
+
+src/
+  game/
+    audio/             # Wrapper de audio Phaser
+    data/              # Conteudo de cartas e EPIs
+    scenes/            # Cenas Phaser (menu, minijogos, ranking)
+    state/             # Estado global e leaderboard
+    types/             # Tipos compartilhados
+    ui/                # Componentes UI (botao/modal)
 ```
 
-## Tecnologias
+## Editando hotspots e zonas no Tiled
 
-- Flutter
-- Dart
-- Provider (gerenciamento de estado)
-- go_router (navegacao)
+- `public/tiled/spot_lavoura.tmj`: hotspots da cena da lavoura
+- `public/tiled/spot_deposito.tmj`: hotspots da cena do deposito
+- `public/tiled/packaging_journey.tmj`: slots da sequencia da embalagem
+- `public/tiled/dress_up.tmj`: zonas de equipar EPI
 
-## Plataforma alvo
-
-Este projeto e suportado apenas na plataforma web (HTML).
-
-## Como executar (web)
-
-Pre-requisitos:
-
-- Flutter SDK instalado
-- Navegador Chrome ou Edge instalado
-
-Comandos:
-
-```bash
-flutter pub get
-flutter run -d chrome
-```
-
-## Build para publicacao web
-
-```bash
-flutter build web
-```
-
-Os arquivos finais sao gerados em `build/web/`.
-
-## Status
-
-Projeto em desenvolvimento ativo. A base jogavel cobre os principais fluxos pedagogicos definidos ate aqui.
+Os minijogos carregam essas areas dinamicamente; alterar os objetos no Tiled altera o comportamento em runtime.

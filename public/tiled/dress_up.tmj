@@ -1,0 +1,191 @@
+{
+  "compressionlevel": -1,
+  "height": 720,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "zones",
+      "objects": [
+        {
+          "height": 56,
+          "id": 1,
+          "name": "head_zone",
+          "properties": [
+            {
+              "name": "zoneId",
+              "type": "string",
+              "value": "head"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "Cabeca"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 110,
+          "x": 585,
+          "y": 160
+        },
+        {
+          "height": 54,
+          "id": 2,
+          "name": "eyes_zone",
+          "properties": [
+            {
+              "name": "zoneId",
+              "type": "string",
+              "value": "eyes"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "Olhos"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 110,
+          "x": 585,
+          "y": 224
+        },
+        {
+          "height": 54,
+          "id": 3,
+          "name": "face_zone",
+          "properties": [
+            {
+              "name": "zoneId",
+              "type": "string",
+              "value": "face"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "Rosto"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 110,
+          "x": 585,
+          "y": 286
+        },
+        {
+          "height": 74,
+          "id": 4,
+          "name": "hands_zone",
+          "properties": [
+            {
+              "name": "zoneId",
+              "type": "string",
+              "value": "hands"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "Maos"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 110,
+          "x": 456,
+          "y": 346
+        },
+        {
+          "height": 104,
+          "id": 5,
+          "name": "torso_zone",
+          "properties": [
+            {
+              "name": "zoneId",
+              "type": "string",
+              "value": "torso"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "Tronco"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 160,
+          "x": 560,
+          "y": 350
+        },
+        {
+          "height": 78,
+          "id": 6,
+          "name": "feet_zone",
+          "properties": [
+            {
+              "name": "zoneId",
+              "type": "string",
+              "value": "feet"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "Pes"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 144,
+          "x": 568,
+          "y": 470
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 2,
+      "name": "tray",
+      "objects": [
+        {
+          "height": 140,
+          "id": 7,
+          "name": "items_area",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 1140,
+          "x": 70,
+          "y": 560
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 3,
+  "nextobjectid": 8,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.10.2",
+  "tileheight": 1,
+  "tilesets": [],
+  "tilewidth": 1,
+  "type": "map",
+  "version": "1.10",
+  "width": 1280
+}

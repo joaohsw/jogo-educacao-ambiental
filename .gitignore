@@ -42,3 +42,8 @@ app.*.map.json
 /flutter/
 /sdk/
 /jdk/
+
+# Node/Vite
+/node_modules/
+/dist/
+*.tsbuildinfo

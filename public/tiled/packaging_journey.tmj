@@ -1,0 +1,168 @@
+{
+  "compressionlevel": -1,
+  "height": 720,
+  "infinite": false,
+  "layers": [
+    {
+      "draworder": "topdown",
+      "id": 1,
+      "name": "slots",
+      "objects": [
+        {
+          "height": 110,
+          "id": 1,
+          "name": "slot_1",
+          "properties": [
+            {
+              "name": "order",
+              "type": "int",
+              "value": 0
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "1. Uso"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 200,
+          "x": 100,
+          "y": 192
+        },
+        {
+          "height": 110,
+          "id": 2,
+          "name": "slot_2",
+          "properties": [
+            {
+              "name": "order",
+              "type": "int",
+              "value": 1
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "2. Lavagem"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 200,
+          "x": 330,
+          "y": 192
+        },
+        {
+          "height": 110,
+          "id": 3,
+          "name": "slot_3",
+          "properties": [
+            {
+              "name": "order",
+              "type": "int",
+              "value": 2
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "3. Armazenar"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 200,
+          "x": 560,
+          "y": 192
+        },
+        {
+          "height": 110,
+          "id": 4,
+          "name": "slot_4",
+          "properties": [
+            {
+              "name": "order",
+              "type": "int",
+              "value": 3
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "4. Devolver"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 200,
+          "x": 790,
+          "y": 192
+        },
+        {
+          "height": 110,
+          "id": 5,
+          "name": "slot_5",
+          "properties": [
+            {
+              "name": "order",
+              "type": "int",
+              "value": 4
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "5. Recibo"
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 200,
+          "x": 1020,
+          "y": 192
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "draworder": "topdown",
+      "id": 2,
+      "name": "tray",
+      "objects": [
+        {
+          "height": 300,
+          "id": 6,
+          "name": "cards_area",
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 1120,
+          "x": 80,
+          "y": 360
+        }
+      ],
+      "opacity": 1,
+      "type": "objectgroup",
+      "visible": true,
+      "x": 0,
+      "y": 0
+    }
+  ],
+  "nextlayerid": 3,
+  "nextobjectid": 7,
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "tiledversion": "1.10.2",
+  "tileheight": 1,
+  "tilesets": [],
+  "tilewidth": 1,
+  "type": "map",
+  "version": "1.10",
+  "width": 1280
+}
