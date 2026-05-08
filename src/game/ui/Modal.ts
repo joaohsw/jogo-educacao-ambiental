@@ -119,7 +119,7 @@ export const showModal = (
       fontSize: `${Math.floor(28 * uiScale)}px`,
       depth: 405
     }
-  );
+  ).container;
 
   const accentShape = scene.add
     .ellipse(panelX + panelWidth * 0.32, panelY - panelHeight * 0.23, 120 * uiScale, 90 * uiScale, style.accent, 0.65)

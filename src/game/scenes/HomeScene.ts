@@ -1,193 +1,279 @@
 import Phaser from "phaser";
 
 import { GameAudio } from "../audio/GameAudio";
-import { MINI_GAME_LABELS, SCENE_KEYS } from "../constants";
+import { SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
-import { createButton } from "../ui/Button";
-
-interface MenuEntry {
-  title: string;
-  subtitle: string;
-  color: number;
-  hoverColor: number;
-  border: number;
-  onClick: () => void;
-}
+import { createButton, type GameButton } from "../ui/Button";
 
 export class HomeScene extends Phaser.Scene {
   private audio!: GameAudio;
-  private scoreText!: Phaser.GameObjects.Text;
+  private menuButtons: GameButton[] = [];
+  private focusIndex = -1;
+  private particles: { x: number; y: number; vx: number; vy: number; r: number; color: number; alpha: number }[] = [];
+  private particleGraphics!: Phaser.GameObjects.Graphics;
 
   constructor() {
     super(SCENE_KEYS.home);
   }
 
   create(): void {
+    this.menuButtons = [];
+    this.focusIndex = -1;
     this.audio = new GameAudio(this);
-    this.buildLayout();
 
-    gameStore.events.on("updated", this.updateScore, this);
-    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
-      gameStore.events.off("updated", this.updateScore, this);
-    });
+    const { width, height } = this.cameras.main;
+
+    this.drawBackground(width, height);
+    this.drawTitle(width, height);
+    this.drawButtons(width, height);
+    this.setupKeyboard();
+    this.initParticles(width, height);
   }
 
-  private buildLayout(): void {
-    const { width, height } = this.cameras.main;
-    const uiScale = Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.72, 1.4);
+  update(): void {
+    this.updateParticles();
+  }
 
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x0b132b, 0x1d4ed8, 0x0f766e, 0x14532d, 1);
-    bg.fillRect(0, 0, width, height);
-    this.add.circle(width * 0.92, height * 0.15, 180 * uiScale, 0x67e8f9, 0.1);
-    this.add.circle(width * 0.17, height * 0.84, 220 * uiScale, 0xfacc15, 0.08);
+  /* ================================================================ */
+  /*  BACKGROUND                                                      */
+  /* ================================================================ */
+  private drawBackground(w: number, h: number): void {
+    // Deep gradient
+    const g = this.add.graphics();
+    g.fillGradientStyle(0x0b1120, 0x0f2847, 0x0c3b2e, 0x0b1120, 1);
+    g.fillRect(0, 0, w, h);
 
-    const shellWidth = width - 48;
-    const shellHeight = height - 34;
-    this.add.rectangle(width * 0.5 + 4, height * 0.5 + 6, shellWidth, shellHeight, 0x020617, 0.35);
-    this.add
-      .rectangle(width * 0.5, height * 0.5, shellWidth, shellHeight, 0xf8fafc, 0.93)
-      .setStrokeStyle(2, 0xffffff, 0.75);
+    // Large soft circles for depth
+    this.add.circle(w * 0.15, h * 0.3, Math.min(w, h) * 0.35, 0x166534, 0.06);
+    this.add.circle(w * 0.85, h * 0.7, Math.min(w, h) * 0.4, 0x1d4ed8, 0.05);
+    this.add.circle(w * 0.5, h * 0.1, Math.min(w, h) * 0.25, 0x67e8f9, 0.04);
 
-    const heroHeight = Math.max(188, height * 0.26);
-    const heroY = 26 + heroHeight * 0.5;
-    this.add
-      .rectangle(width * 0.5, heroY, shellWidth - 46, heroHeight, 0x0f172a, 0.96)
-      .setStrokeStyle(2, 0x334155);
-    this.add.rectangle(width * 0.5, heroY + heroHeight * 0.32, shellWidth - 46, heroHeight * 0.36, 0x14532d, 0.9);
+    // Horizontal subtle divider line
+    const lineG = this.add.graphics();
+    lineG.fillGradientStyle(0x22c55e, 0x3b82f6, 0x8b5cf6, 0x22c55e, 0.15, 0.4, 0.4, 0.15);
+    lineG.fillRect(w * 0.1, h * 0.48, w * 0.8, 2);
+  }
 
-    this.add
-      .text(width * 0.5, heroY - heroHeight * 0.2, "Detetive na Propriedade", {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(62 * uiScale)}px`,
-        color: "#f8fafc",
-        fontStyle: "700"
-      })
-      .setOrigin(0.5);
+  /* ================================================================ */
+  /*  FLOATING PARTICLES                                              */
+  /* ================================================================ */
+  private initParticles(w: number, h: number): void {
+    this.particleGraphics = this.add.graphics().setDepth(1);
+    const colors = [0x22c55e, 0x3b82f6, 0xfbbf24, 0x8b5cf6, 0x67e8f9];
+    this.particles = [];
 
-    this.add
-      .text(width * 0.5, heroY + heroHeight * 0.02, "Aprendizado pratico sobre seguranca ambiental no campo", {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(24 * uiScale)}px`,
-        color: "#cbd5e1"
-      })
-      .setOrigin(0.5);
-
-    this.add
-      .rectangle(width * 0.5, heroY + heroHeight * 0.32, 360 * uiScale, 46 * uiScale, 0xfacc15, 1)
-      .setStrokeStyle(2, 0x0f172a);
-    this.scoreText = this.add
-      .text(width * 0.5, heroY + heroHeight * 0.32, "", {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(28 * uiScale)}px`,
-        color: "#111827",
-        fontStyle: "700"
-      })
-      .setOrigin(0.5);
-
-    const entries: MenuEntry[] = [
-      {
-        title: MINI_GAME_LABELS.jogo_erros_lavoura,
-        subtitle: "Investigacao em campo aberto",
-        color: 0xecfdf5,
-        hoverColor: 0xd1fae5,
-        border: 0x15803d,
-        onClick: () => {
-          this.audio.play("click");
-          this.scene.start(SCENE_KEYS.spotError, {
-            sceneTitle: "Cena 1 - Lavoura",
-            miniGameId: "jogo_erros_lavoura",
-            mapKey: "map-lavoura",
-            backgroundKey: "bg-lavoura"
-          });
-        }
-      },
-      {
-        title: MINI_GAME_LABELS.jogo_erros_deposito,
-        subtitle: "Inspecao de armazenamento",
-        color: 0xf0fdf4,
-        hoverColor: 0xdcfce7,
-        border: 0x16a34a,
-        onClick: () => {
-          this.audio.play("click");
-          this.scene.start(SCENE_KEYS.spotError, {
-            sceneTitle: "Cena 2 - Deposito",
-            miniGameId: "jogo_erros_deposito",
-            mapKey: "map-deposito",
-            backgroundKey: "bg-deposito"
-          });
-        }
-      },
-      {
-        title: MINI_GAME_LABELS.jornada_embalagem,
-        subtitle: "Sequencia correta de descarte",
-        color: 0xeff6ff,
-        hoverColor: 0xdbeafe,
-        border: 0x1d4ed8,
-        onClick: () => {
-          this.audio.play("click");
-          this.scene.start(SCENE_KEYS.packaging);
-        }
-      },
-      {
-        title: MINI_GAME_LABELS.vista_se,
-        subtitle: "Equipar EPI no trabalhador",
-        color: 0xfdf4ff,
-        hoverColor: 0xfae8ff,
-        border: 0x7e22ce,
-        onClick: () => {
-          this.audio.play("click");
-          this.scene.start(SCENE_KEYS.dressUp);
-        }
-      }
-    ];
-
-    const menuTop = heroY + heroHeight * 0.6;
-    const buttonHeight = Math.max(74, Math.floor(82 * uiScale));
-    const buttonWidth = Math.min(shellWidth - 120, 980);
-    const gap = Math.max(12, Math.floor(14 * uiScale));
-
-    entries.forEach((entry, index) => {
-      const y = menuTop + index * (buttonHeight + gap);
-      createButton(this, width * 0.5, y, entry.title, entry.onClick, {
-        width: buttonWidth,
-        height: buttonHeight,
-        backgroundColor: entry.color,
-        hoverBackgroundColor: entry.hoverColor,
-        borderColor: entry.border,
-        hoverBorderColor: Phaser.Display.Color.ValueToColor(entry.border).darken(14).color,
-        textColor: "#0f172a",
-        fontSize: `${Math.floor(34 * uiScale)}px`
+    for (let i = 0; i < 35; i++) {
+      this.particles.push({
+        x: Phaser.Math.Between(0, w),
+        y: Phaser.Math.Between(0, h),
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.3 - 0.15,
+        r: Phaser.Math.Between(2, 5),
+        color: colors[i % colors.length],
+        alpha: Math.random() * 0.25 + 0.08
       });
+    }
+  }
 
-      this.add
-        .text(width * 0.5, y + buttonHeight * 0.34, entry.subtitle, {
-          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-          fontSize: `${Math.floor(18 * uiScale)}px`,
-          color: "#475569"
-        })
-        .setOrigin(0.5);
+  private updateParticles(): void {
+    const { width, height } = this.cameras.main;
+    const g = this.particleGraphics;
+    g.clear();
+
+    for (const p of this.particles) {
+      p.x += p.vx;
+      p.y += p.vy;
+
+      if (p.x < -10) p.x = width + 10;
+      if (p.x > width + 10) p.x = -10;
+      if (p.y < -10) p.y = height + 10;
+      if (p.y > height + 10) p.y = -10;
+
+      g.fillStyle(p.color, p.alpha);
+      g.fillCircle(p.x, p.y, p.r);
+    }
+  }
+
+  /* ================================================================ */
+  /*  TITLE                                                           */
+  /* ================================================================ */
+  private drawTitle(w: number, h: number): void {
+    const uiScale = Phaser.Math.Clamp(Math.min(w / 1280, h / 720), 0.6, 1.4);
+
+    // Icon cluster
+    this.add.text(w * 0.5, h * 0.12, "🌿🔍🏡", {
+      fontSize: `${Math.floor(48 * uiScale)}px`
+    }).setOrigin(0.5).setDepth(2);
+
+    // Main title
+    this.add.text(w * 0.5, h * 0.24, "Detetive na\nPropriedade", {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(68 * uiScale)}px`,
+      color: "#f1f5f9",
+      fontStyle: "700",
+      align: "center",
+      lineSpacing: 6
+    }).setOrigin(0.5).setDepth(2);
+
+    // Tagline
+    this.add.text(w * 0.5, h * 0.42, "Aprendizado prático sobre segurança ambiental no campo", {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(20 * uiScale)}px`,
+      color: "#94a3b8",
+      align: "center",
+      wordWrap: { width: w * 0.7 }
+    }).setOrigin(0.5).setDepth(2);
+  }
+
+  /* ================================================================ */
+  /*  BUTTONS                                                         */
+  /* ================================================================ */
+  private drawButtons(w: number, h: number): void {
+    const uiScale = Phaser.Math.Clamp(Math.min(w / 1280, h / 720), 0.6, 1.4);
+    const btnW = Math.min(w * 0.35, 420);
+    const btnH = Math.max(60, Math.floor(68 * uiScale));
+    const gap = Math.max(16, Math.floor(20 * uiScale));
+    const startY = h * 0.58;
+
+    // "Novo Jogo" button
+    const newGameBtn = createButton(this, w * 0.5, startY, "Novo Jogo", () => {
+      this.audio.play("click");
+      gameStore.resetCurrentSession();
+      // Clear saved position
+      this.registry.remove("playerX");
+      this.registry.remove("playerY");
+      this.scene.start(SCENE_KEYS.map);
+    }, {
+      width: btnW,
+      height: btnH,
+      backgroundColor: 0x166534,
+      hoverBackgroundColor: 0x15803d,
+      borderColor: 0x22c55e,
+      hoverBorderColor: 0x4ade80,
+      textColor: "#f0fdf4",
+      fontSize: `${Math.floor(30 * uiScale)}px`,
+      depth: 10
     });
+    this.menuButtons.push(newGameBtn);
 
-    createButton(this, width * 0.5, height - 54, "Abrir Ranking", () => {
+    // "Continuar" button
+    const hasSavedProgress = gameStore.getTotalScore() > 0;
+    const continueBtn = createButton(this, w * 0.5, startY + btnH + gap, "Continuar", () => {
+      this.audio.play("click");
+      this.scene.start(SCENE_KEYS.map);
+    }, {
+      width: btnW,
+      height: btnH,
+      backgroundColor: hasSavedProgress ? 0x1e3a8a : 0x1e293b,
+      hoverBackgroundColor: hasSavedProgress ? 0x1d4ed8 : 0x334155,
+      borderColor: hasSavedProgress ? 0x3b82f6 : 0x475569,
+      hoverBorderColor: hasSavedProgress ? 0x60a5fa : 0x64748b,
+      textColor: hasSavedProgress ? "#dbeafe" : "#64748b",
+      fontSize: `${Math.floor(30 * uiScale)}px`,
+      depth: 10
+    });
+    this.menuButtons.push(continueBtn);
+
+    if (!hasSavedProgress) {
+      continueBtn.container.setAlpha(0.5);
+      continueBtn.container.disableInteractive();
+    }
+
+    // "Ranking" button (smaller, below)
+    const rankingBtn = createButton(this, w * 0.5, startY + (btnH + gap) * 2 + 8, "🏆  Ranking", () => {
       this.audio.play("click");
       this.scene.start(SCENE_KEYS.ranking);
     }, {
-      width: Math.min(shellWidth * 0.38, 380),
-      height: Math.max(58, Math.floor(62 * uiScale)),
-      backgroundColor: 0xffedd5,
-      hoverBackgroundColor: 0xffd7b0,
+      width: Math.min(btnW * 0.65, 280),
+      height: Math.max(50, Math.floor(54 * uiScale)),
+      backgroundColor: 0x451a03,
+      hoverBackgroundColor: 0x78350f,
       borderColor: 0xea580c,
-      hoverBorderColor: 0xc2410c,
-      textColor: "#7c2d12",
-      fontSize: `${Math.floor(30 * uiScale)}px`
+      hoverBorderColor: 0xfb923c,
+      textColor: "#ffedd5",
+      fontSize: `${Math.floor(24 * uiScale)}px`,
+      depth: 10
     });
+    this.menuButtons.push(rankingBtn);
 
-    this.updateScore();
+    // Version / credit
+    this.add.text(w * 0.5, h - 28, "v2.0  •  Educação Ambiental", {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(14 * uiScale)}px`,
+      color: "#475569"
+    }).setOrigin(0.5).setDepth(2);
   }
 
-  private updateScore(): void {
-    this.scoreText.setText(`Pontuacao total: ${gameStore.getTotalScore()} pts`);
+  /* ================================================================ */
+  /*  KEYBOARD NAVIGATION                                             */
+  /* ================================================================ */
+  private setupKeyboard(): void {
+    const kb = this.input.keyboard;
+    if (!kb) return;
+
+    const cursors = kb.createCursorKeys();
+    const keyW = kb.addKey(Phaser.Input.Keyboard.KeyCodes.W);
+    const keyS = kb.addKey(Phaser.Input.Keyboard.KeyCodes.S);
+    const keyEnter = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
+    const keySpace = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+
+    const moveUp = () => this.moveFocus(-1);
+    const moveDown = () => this.moveFocus(1);
+    const confirm = () => {
+      if (this.focusIndex >= 0 && this.focusIndex < this.menuButtons.length) {
+        this.menuButtons[this.focusIndex].trigger();
+      }
+    };
+
+    cursors.up!.on("down", moveUp);
+    cursors.down!.on("down", moveDown);
+    keyW.on("down", moveUp);
+    keyS.on("down", moveDown);
+    keyEnter.on("down", confirm);
+    keySpace.on("down", confirm);
+
+    // Sync mouse hover
+    this.menuButtons.forEach((btn, idx) => {
+      btn.container.on("pointerover", () => this.setFocus(idx));
+      btn.container.on("pointerout", () => {
+        if (this.focusIndex === idx) this.clearFocus();
+      });
+    });
+  }
+
+  private moveFocus(dir: number): void {
+    const count = this.menuButtons.length;
+    if (count === 0) return;
+
+    if (this.focusIndex >= 0) this.menuButtons[this.focusIndex].setFocused(false);
+
+    if (this.focusIndex < 0) {
+      this.focusIndex = dir > 0 ? 0 : count - 1;
+    } else {
+      this.focusIndex = (this.focusIndex + dir + count) % count;
+    }
+
+    // Skip disabled buttons
+    const btn = this.menuButtons[this.focusIndex];
+    if (btn.container.alpha < 0.6) {
+      // try next
+      this.moveFocus(dir);
+      return;
+    }
+
+    btn.setFocused(true);
+    this.audio.play("click");
+  }
+
+  private setFocus(index: number): void {
+    if (this.focusIndex === index) return;
+    if (this.focusIndex >= 0) this.menuButtons[this.focusIndex].setFocused(false);
+    this.focusIndex = index;
+    this.menuButtons[this.focusIndex].setFocused(true);
+  }
+
+  private clearFocus(): void {
+    if (this.focusIndex >= 0) this.menuButtons[this.focusIndex].setFocused(false);
+    this.focusIndex = -1;
   }
 }
-

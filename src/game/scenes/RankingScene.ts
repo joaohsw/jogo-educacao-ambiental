@@ -61,7 +61,7 @@ export class RankingScene extends Phaser.Scene {
         return;
       }
       this.audio.play("click");
-      this.scene.start(SCENE_KEYS.home);
+      this.scene.start(SCENE_KEYS.map);
     }, {
       width: 162 * uiScale,
       height: 52 * uiScale,
@@ -163,13 +163,14 @@ export class RankingScene extends Phaser.Scene {
       hoverBorderColor: 0x15803d,
       textColor: "#14532d",
       fontSize: `${Math.floor(24 * uiScale)}px`
-    })
+    });
+    saveButton.container
       .setData("ranking-dynamic", true)
       .setDepth(20);
 
     if (total <= 0) {
-      saveButton.setAlpha(0.45);
-      saveButton.disableInteractive();
+      saveButton.container.setAlpha(0.45);
+      saveButton.container.disableInteractive();
     }
 
     createButton(this, leftPanelRect.centerX + (isStacked ? 100 : 110), buttonY, "Resetar", () => {
@@ -187,7 +188,7 @@ export class RankingScene extends Phaser.Scene {
       hoverBorderColor: 0xc2410c,
       textColor: "#7c2d12",
       fontSize: `${Math.floor(24 * uiScale)}px`
-    })
+    }).container
       .setData("ranking-dynamic", true)
       .setDepth(20);
 

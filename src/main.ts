@@ -5,6 +5,7 @@ import { GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "./game/constants";
 import { BootScene } from "./game/scenes/BootScene";
 import { DressUpScene } from "./game/scenes/DressUpScene";
 import { HomeScene } from "./game/scenes/HomeScene";
+import { MapScene } from "./game/scenes/MapScene";
 import { PackagingScene } from "./game/scenes/PackagingScene";
 import { RankingScene } from "./game/scenes/RankingScene";
 import { SpotErrorScene } from "./game/scenes/SpotErrorScene";
@@ -27,7 +28,7 @@ const config: Phaser.Types.Core.GameConfig = {
     width: window.innerWidth,
     height: window.innerHeight
   },
-  scene: [BootScene, HomeScene, SpotErrorScene, PackagingScene, DressUpScene, RankingScene]
+  scene: [BootScene, HomeScene, MapScene, SpotErrorScene, PackagingScene, DressUpScene, RankingScene]
 };
 
 new Phaser.Game(config);

@@ -11,11 +11,19 @@ export const STORAGE_KEYS = {
 export const SCENE_KEYS = {
   boot: "boot-scene",
   home: "home-scene",
+  map: "map-scene",
   spotError: "spot-error-scene",
   packaging: "packaging-scene",
   dressUp: "dress-up-scene",
   ranking: "ranking-scene"
 } as const;
+
+/* -------- Map constants -------- */
+export const MAP_WIDTH = 2000;
+export const MAP_HEIGHT = 1200;
+export const PLAYER_SPEED = 220;
+export const PLAYER_RADIUS = 14;
+export const INTERACTION_RADIUS = 90;
 
 export const MINI_GAME_IDS: MiniGameId[] = [
   "jogo_erros_lavoura",

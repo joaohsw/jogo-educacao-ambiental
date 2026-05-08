@@ -80,7 +80,7 @@ export class PackagingScene extends Phaser.Scene {
         return;
       }
       this.audio.play("click");
-      this.scene.start(SCENE_KEYS.home);
+      this.scene.start(SCENE_KEYS.map);
     }, {
       width: 162 * uiScale,
       height: 52 * uiScale,

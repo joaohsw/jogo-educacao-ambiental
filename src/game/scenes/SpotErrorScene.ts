@@ -78,7 +78,7 @@ export class SpotErrorScene extends Phaser.Scene {
         return;
       }
       this.audio.play("click");
-      this.scene.start(SCENE_KEYS.home);
+      this.scene.start(SCENE_KEYS.map);
     }, {
       width: 168 * uiScale,
       height: 54 * uiScale,

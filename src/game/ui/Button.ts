@@ -13,6 +13,12 @@ interface ButtonOptions {
   depth?: number;
 }
 
+export interface GameButton {
+  container: Phaser.GameObjects.Container;
+  setFocused: (focused: boolean) => void;
+  trigger: () => void;
+}
+
 export const createButton = (
   scene: Phaser.Scene,
   x: number,
@@ -20,7 +26,7 @@ export const createButton = (
   label: string,
   onClick: () => void,
   options: ButtonOptions = {}
-): Phaser.GameObjects.Container => {
+): GameButton => {
   const width = options.width ?? 280;
   const height = options.height ?? 58;
   const backgroundColor = options.backgroundColor ?? 0xffffff;
@@ -31,6 +37,9 @@ export const createButton = (
   const fontSize = options.fontSize ?? "26px";
   const fontFamily = options.fontFamily ?? "'Segoe UI', 'Trebuchet MS', sans-serif";
   const depth = options.depth ?? 10;
+
+  // Extra padding on the hit area so the mouse doesn't "miss" the button edges
+  const hitPad = 6;
 
   const shadow = scene.add
     .rectangle(0, 5, width, height, 0x020617, 0.28)
@@ -45,6 +54,14 @@ export const createButton = (
     .rectangle(0, -height * 0.24, width - 10, Math.max(10, Math.floor(height * 0.3)), 0xffffff, 0.18)
     .setOrigin(0.5);
 
+  // Focus indicator ring (hidden by default)
+  const focusRing = scene.add
+    .rectangle(0, 0, width + 8, height + 8)
+    .setOrigin(0.5)
+    .setStrokeStyle(3, 0xfacc15, 1)
+    .setFillStyle(0xfacc15, 0.08)
+    .setVisible(false);
+
   const text = scene.add
     .text(0, 0, label, {
       fontFamily,
@@ -55,14 +72,25 @@ export const createButton = (
     })
     .setOrigin(0.5);
 
-  const button = scene.add.container(x, y, [shadow, background, topGlow, text]);
-  button.setSize(width, height);
+  const button = scene.add.container(x, y, [focusRing, shadow, background, topGlow, text]);
+  button.setSize(width + hitPad * 2, height + hitPad * 2);
   button.setDepth(depth);
+
+  // Use a hit area that is slightly larger than the visual button so hovering
+  // at the edges still registers — this fixes the "mouse is over the button
+  // but it's not clickable" problem.
   button.setInteractive(
-    new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
+    new Phaser.Geom.Rectangle(
+      -(width + hitPad * 2) / 2,
+      -(height + hitPad * 2) / 2,
+      width + hitPad * 2,
+      height + hitPad * 2
+    ),
     Phaser.Geom.Rectangle.Contains
   );
   button.input!.cursor = "pointer";
+
+  let isFocused = false;
 
   const resetVisual = (): void => {
     background.setFillStyle(backgroundColor, 0.98);
@@ -71,15 +99,21 @@ export const createButton = (
     shadow.setY(5);
   };
 
-  button.on("pointerover", () => {
+  const setHoverVisual = (): void => {
     background.setFillStyle(hoverBackgroundColor, 1);
     background.setStrokeStyle(2, hoverBorderColor, 1);
     shadow.setAlpha(0.34);
+  };
+
+  button.on("pointerover", () => {
+    setHoverVisual();
   });
 
   button.on("pointerout", () => {
     shadow.setAlpha(0.28);
-    resetVisual();
+    if (!isFocused) {
+      resetVisual();
+    }
   });
 
   button.on("pointerdown", () => {
@@ -90,6 +124,25 @@ export const createButton = (
 
   button.on("pointerup", resetVisual);
 
-  return button;
-};
+  // --- Keyboard focus API ---
+  const setFocused = (focused: boolean): void => {
+    isFocused = focused;
+    focusRing.setVisible(focused);
+    if (focused) {
+      setHoverVisual();
+    } else {
+      shadow.setAlpha(0.28);
+      resetVisual();
+    }
+  };
 
+  const trigger = (): void => {
+    // Briefly show pressed state then fire
+    text.setY(1.5);
+    shadow.setY(6.5);
+    onClick();
+    scene.time.delayedCall(120, resetVisual);
+  };
+
+  return { container: button, setFocused, trigger };
+};
