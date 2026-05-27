@@ -100,11 +100,6 @@ export class HomeScene extends Phaser.Scene {
   private drawTitle(w: number, h: number): void {
     const uiScale = Phaser.Math.Clamp(Math.min(w / 1280, h / 720), 0.6, 1.4);
 
-    // Icon cluster
-    this.add.text(w * 0.5, h * 0.12, "🌿🔍🏡", {
-      fontSize: `${Math.floor(48 * uiScale)}px`
-    }).setOrigin(0.5).setDepth(2);
-
     // Main title
     this.add.text(w * 0.5, h * 0.24, "Detetive na\nPropriedade", {
       fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
@@ -180,7 +175,7 @@ export class HomeScene extends Phaser.Scene {
     }
 
     // "Ranking" button (smaller, below)
-    const rankingBtn = createButton(this, w * 0.5, startY + (btnH + gap) * 2 + 8, "🏆  Ranking", () => {
+    const rankingBtn = createButton(this, w * 0.5, startY + (btnH + gap) * 2 + 8, "Ranking", () => {
       this.audio.play("click");
       this.scene.start(SCENE_KEYS.ranking);
     }, {

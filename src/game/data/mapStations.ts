@@ -4,7 +4,6 @@ import type { MiniGameId } from "../types/gameTypes";
 export interface MapStation {
   id: string;
   label: string;
-  icon: string;
   x: number;
   y: number;
   width: number;
@@ -21,7 +20,6 @@ export const mapStations: MapStation[] = [
   {
     id: "lavoura",
     label: "Lavoura",
-    icon: "🌾",
     x: 320,
     y: 240,
     width: 160,
@@ -41,7 +39,6 @@ export const mapStations: MapStation[] = [
   {
     id: "deposito",
     label: "Depósito",
-    icon: "📦",
     x: 1650,
     y: 260,
     width: 160,
@@ -61,7 +58,6 @@ export const mapStations: MapStation[] = [
   {
     id: "embalagem",
     label: "Descarte",
-    icon: "🗑️",
     x: 340,
     y: 900,
     width: 150,
@@ -75,7 +71,6 @@ export const mapStations: MapStation[] = [
   {
     id: "epi",
     label: "Galpão EPIs",
-    icon: "🥽",
     x: 1620,
     y: 880,
     width: 160,
@@ -89,7 +84,6 @@ export const mapStations: MapStation[] = [
   {
     id: "ranking",
     label: "Ranking",
-    icon: "🏆",
     x: 1000,
     y: 1020,
     width: 130,

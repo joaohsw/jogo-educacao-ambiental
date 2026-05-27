@@ -254,11 +254,6 @@ export class MapScene extends Phaser.Scene {
         this.add.rectangle(x, y - 10, 22, 20, 0x7dd3fc, 0.8).setOrigin(0.5).setStrokeStyle(2, 0xffffff, 0.6);
       }
 
-      // Icon (emoji)
-      this.add.text(x, y - height / 2 - 48, station.icon, {
-        fontSize: "32px"
-      }).setOrigin(0.5);
-
       // Label
       this.add.text(x, y + height / 2 + 18, station.label, {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
@@ -308,8 +303,13 @@ export class MapScene extends Phaser.Scene {
 
       if (isCompleted && !station.checkMark) {
         station.checkMark = this.add
-          .text(station.data.x + station.data.width / 2 + 8, station.data.y - station.data.height / 2 - 8, "✅", {
-            fontSize: "24px"
+          .text(station.data.x + station.data.width / 2 + 8, station.data.y - station.data.height / 2 - 8, "OK", {
+            fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+            fontSize: "16px",
+            color: "#dcfce7",
+            fontStyle: "700",
+            backgroundColor: "#166534cc",
+            padding: { left: 6, right: 6, top: 3, bottom: 3 }
           })
           .setOrigin(0.5)
           .setDepth(30);
@@ -321,7 +321,7 @@ export class MapScene extends Phaser.Scene {
 
     // Update HUD score
     if (this.scoreHud) {
-      this.scoreHud.setText(`⭐ ${gameStore.getTotalScore()} pts`);
+      this.scoreHud.setText(`Pontos: ${gameStore.getTotalScore()}`);
     }
   }
 
@@ -538,7 +538,7 @@ export class MapScene extends Phaser.Scene {
   private createHud(): void {
     // Score badge
     this.scoreHud = this.add
-      .text(16, 16, `⭐ ${gameStore.getTotalScore()} pts`, {
+      .text(16, 16, `Pontos: ${gameStore.getTotalScore()}`, {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
         fontSize: "22px",
         color: "#fef9c3",

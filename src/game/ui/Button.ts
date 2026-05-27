@@ -40,6 +40,8 @@ export const createButton = (
 
   // Extra padding on the hit area so the mouse doesn't "miss" the button edges
   const hitPad = 6;
+  const hitWidth = width + hitPad * 2;
+  const hitHeight = height + hitPad * 2;
 
   const shadow = scene.add
     .rectangle(0, 5, width, height, 0x020617, 0.28)
@@ -73,19 +75,14 @@ export const createButton = (
     .setOrigin(0.5);
 
   const button = scene.add.container(x, y, [focusRing, shadow, background, topGlow, text]);
-  button.setSize(width + hitPad * 2, height + hitPad * 2);
+  button.setSize(hitWidth, hitHeight);
   button.setDepth(depth);
 
   // Use a hit area that is slightly larger than the visual button so hovering
-  // at the edges still registers — this fixes the "mouse is over the button
-  // but it's not clickable" problem.
+  // at the edges still registers. Container input is normalized by displayOrigin,
+  // so the rectangle starts at 0,0 to stay centered on the visual button.
   button.setInteractive(
-    new Phaser.Geom.Rectangle(
-      -(width + hitPad * 2) / 2,
-      -(height + hitPad * 2) / 2,
-      width + hitPad * 2,
-      height + hitPad * 2
-    ),
+    new Phaser.Geom.Rectangle(0, 0, hitWidth, hitHeight),
     Phaser.Geom.Rectangle.Contains
   );
   button.input!.cursor = "pointer";

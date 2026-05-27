@@ -263,26 +263,20 @@ export class DressUpScene extends Phaser.Scene {
       .rectangle(0, 0, width, height, bgColor, 0.98)
       .setOrigin(0.5)
       .setStrokeStyle(2, borderColor);
-    const icon = this.add
-      .text(-width * 0.38, 0, itemData.icon, {
-        fontFamily: "'Segoe UI Emoji', sans-serif",
-        fontSize: `${Math.floor(31 * uiScale)}px`
-      })
-      .setOrigin(0.5);
     const label = this.add
-      .text(width * 0.04, 0, itemData.label, {
+      .text(0, 0, itemData.label, {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
         fontSize: `${Math.floor(22 * uiScale)}px`,
         color: textColor,
         fontStyle: "700",
         align: "center",
         wordWrap: {
-          width: width * 0.72
+          width: width * 0.86
         }
       })
       .setOrigin(0.5);
 
-    const card = this.add.container(x, y, [shadow, bg, icon, label]);
+    const card = this.add.container(x, y, [shadow, bg, label]);
     card.setSize(width, height);
     card.setInteractive(
       new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
