@@ -3,9 +3,18 @@ import type { MiniGameId } from "./types/gameTypes";
 export const GAME_WIDTH = 1280;
 export const GAME_HEIGHT = 720;
 
+export const MENU_BACKGROUND = {
+  key: "menu-principal",
+  path: "/images/menu-principal.png"
+} as const;
+
 export const STORAGE_KEYS = {
   leaderboard: "detetive-na-propriedade.leaderboard.v1",
   playerName: "detetive-na-propriedade.player-name.v1"
+} as const;
+
+export const REGISTRY_KEYS = {
+  returnToMap: "detetive-na-propriedade.return-to-map"
 } as const;
 
 export const SCENE_KEYS = {

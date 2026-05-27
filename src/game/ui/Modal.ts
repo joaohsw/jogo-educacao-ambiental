@@ -97,9 +97,15 @@ export const showModal = (
     .setDepth(404);
 
   let modalContainer: Phaser.GameObjects.Container;
+  let didClose = false;
   const close = (): void => {
-    modalContainer.destroy();
+    if (didClose) return;
+
+    didClose = true;
     options.onConfirm?.();
+    if (modalContainer.active) {
+      modalContainer.destroy();
+    }
   };
 
   const button = createButton(
@@ -117,7 +123,8 @@ export const showModal = (
       hoverBorderColor: 0x020617,
       textColor: style.buttonLabelColor,
       fontSize: `${Math.floor(28 * uiScale)}px`,
-      depth: 405
+      depth: 405,
+      triggerOn: "up"
     }
   ).container;
 

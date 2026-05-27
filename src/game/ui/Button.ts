@@ -11,6 +11,7 @@ interface ButtonOptions {
   fontSize?: string;
   fontFamily?: string;
   depth?: number;
+  triggerOn?: "down" | "up";
 }
 
 export interface GameButton {
@@ -37,6 +38,7 @@ export const createButton = (
   const fontSize = options.fontSize ?? "26px";
   const fontFamily = options.fontFamily ?? "'Segoe UI', 'Trebuchet MS', sans-serif";
   const depth = options.depth ?? 10;
+  const triggerOn = options.triggerOn ?? "down";
 
   // Extra padding on the hit area so the mouse doesn't "miss" the button edges
   const hitPad = 6;
@@ -116,10 +118,17 @@ export const createButton = (
   button.on("pointerdown", () => {
     text.setY(1.5);
     shadow.setY(6.5);
-    onClick();
+    if (triggerOn === "down") {
+      onClick();
+    }
   });
 
-  button.on("pointerup", resetVisual);
+  button.on("pointerup", () => {
+    resetVisual();
+    if (triggerOn === "up") {
+      onClick();
+    }
+  });
 
   // --- Keyboard focus API ---
   const setFocused = (focused: boolean): void => {

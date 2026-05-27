@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 import { GameAudio } from "../audio/GameAudio";
-import { SCENE_KEYS } from "../constants";
+import { REGISTRY_KEYS, SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
 import type { MiniGameId } from "../types/gameTypes";
 import { createButton } from "../ui/Button";
@@ -30,6 +30,7 @@ export class SpotErrorScene extends Phaser.Scene {
   private modalOpen = false;
   private completionShown = false;
   private frameRect!: Phaser.Geom.Rectangle;
+  private returningToMap = false;
 
   constructor() {
     super(SCENE_KEYS.spotError);
@@ -73,12 +74,12 @@ export class SpotErrorScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    createButton(this, 112 * uiScale, headerY, "Menu", () => {
+    createButton(this, 112 * uiScale, headerY, "Voltar", () => {
       if (this.modalOpen) {
         return;
       }
       this.audio.play("click");
-      this.scene.start(SCENE_KEYS.map);
+      this.returnToMap();
     }, {
       width: 168 * uiScale,
       height: 54 * uiScale,
@@ -251,14 +252,28 @@ export class SpotErrorScene extends Phaser.Scene {
       title: "Cena concluida",
       message: `Voce encontrou todos os ${this.hotspots.length} erros.`,
       tone: "complete",
-      confirmLabel: "Voltar ao menu",
-      onConfirm: () => this.scene.start(SCENE_KEYS.home)
+      confirmLabel: "Concluir",
+      onConfirm: () => this.returnToMap()
     });
   }
 
   private updateCounter(): void {
     const found = this.hotspots.filter((item) => item.found).length;
     this.counterText.setText(`${found} / ${this.hotspots.length} erros`);
+  }
+
+  private returnToMap(): void {
+    if (this.returningToMap) return;
+
+    this.returningToMap = true;
+    this.modalOpen = false;
+    this.input.enabled = false;
+    this.tweens.killAll();
+
+    this.registry.set(REGISTRY_KEYS.returnToMap, true);
+    this.game.scene.stop(SCENE_KEYS.home);
+    this.game.scene.start(SCENE_KEYS.home);
+    this.game.scene.stop(SCENE_KEYS.spotError);
   }
 
   private openModal(args: {

@@ -2,7 +2,7 @@ import Phaser from "phaser";
 
 import { GameAudio } from "../audio/GameAudio";
 import { packagingCards, type PackagingCard } from "../data/packagingCards";
-import { SCENE_KEYS } from "../constants";
+import { REGISTRY_KEYS, SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
 import { createButton } from "../ui/Button";
 import { showModal } from "../ui/Modal";
@@ -27,6 +27,7 @@ export class PackagingScene extends Phaser.Scene {
   private slots: SlotRuntime[] = [];
   private cards: CardRuntime[] = [];
   private modalOpen = false;
+  private returningToMap = false;
   private trayBounds = new Phaser.Geom.Rectangle(80, 360, 1120, 300);
 
   constructor() {
@@ -75,12 +76,12 @@ export class PackagingScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    createButton(this, 108 * uiScale, headerY, "Menu", () => {
+    createButton(this, 108 * uiScale, headerY, "Voltar", () => {
       if (this.modalOpen) {
         return;
       }
       this.audio.play("click");
-      this.scene.start(SCENE_KEYS.map);
+      this.returnToMap();
     }, {
       width: 162 * uiScale,
       height: 52 * uiScale,
@@ -328,8 +329,8 @@ export class PackagingScene extends Phaser.Scene {
         title: "Sequencia completa",
         message: "Voce concluiu a Jornada da Embalagem com sucesso.",
         tone: "complete",
-        confirmLabel: "Voltar ao menu",
-        onConfirm: () => this.scene.start(SCENE_KEYS.home)
+        confirmLabel: "Concluir",
+        onConfirm: () => this.returnToMap()
       });
     }
   }
@@ -363,6 +364,20 @@ export class PackagingScene extends Phaser.Scene {
       duration: 180,
       ease: "Quad.Out"
     });
+  }
+
+  private returnToMap(): void {
+    if (this.returningToMap) return;
+
+    this.returningToMap = true;
+    this.modalOpen = false;
+    this.input.enabled = false;
+    this.tweens.killAll();
+
+    this.registry.set(REGISTRY_KEYS.returnToMap, true);
+    this.game.scene.stop(SCENE_KEYS.home);
+    this.game.scene.start(SCENE_KEYS.home);
+    this.game.scene.stop(SCENE_KEYS.packaging);
   }
 
   private openModal(args: {

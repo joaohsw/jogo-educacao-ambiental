@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 import { GameAudio } from "../audio/GameAudio";
-import { SCENE_KEYS } from "../constants";
+import { MENU_BACKGROUND, REGISTRY_KEYS, SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
 import { createButton, type GameButton } from "../ui/Button";
 
@@ -9,199 +9,156 @@ export class HomeScene extends Phaser.Scene {
   private audio!: GameAudio;
   private menuButtons: GameButton[] = [];
   private focusIndex = -1;
-  private particles: { x: number; y: number; vx: number; vy: number; r: number; color: number; alpha: number }[] = [];
-  private particleGraphics!: Phaser.GameObjects.Graphics;
 
   constructor() {
     super(SCENE_KEYS.home);
   }
 
   create(): void {
+    if (this.registry.get(REGISTRY_KEYS.returnToMap)) {
+      this.registry.remove(REGISTRY_KEYS.returnToMap);
+      this.scene.start(SCENE_KEYS.map);
+      return;
+    }
+
+    this.audio = new GameAudio(this);
+    this.renderMenu();
+    this.setupKeyboard();
+
+    this.scale.on("resize", this.handleResize, this);
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.scale.off("resize", this.handleResize, this);
+    });
+  }
+
+  private handleResize(): void {
+    this.renderMenu();
+  }
+
+  private renderMenu(): void {
+    const width = this.scale.width;
+    const height = this.scale.height;
+
+    this.children.removeAll(true);
     this.menuButtons = [];
     this.focusIndex = -1;
-    this.audio = new GameAudio(this);
 
-    const { width, height } = this.cameras.main;
+    this.cameras.main.setViewport(0, 0, width, height);
+    this.cameras.main.setBackgroundColor(0x050505);
 
-    this.drawBackground(width, height);
-    this.drawTitle(width, height);
+    this.drawMenuBackground(width, height);
     this.drawButtons(width, height);
-    this.setupKeyboard();
-    this.initParticles(width, height);
   }
 
-  update(): void {
-    this.updateParticles();
-  }
+  private drawMenuBackground(width: number, height: number): void {
+    const background = this.add
+      .image(width * 0.5, height * 0.5, MENU_BACKGROUND.key)
+      .setOrigin(0.5)
+      .setDepth(0);
 
-  /* ================================================================ */
-  /*  BACKGROUND                                                      */
-  /* ================================================================ */
-  private drawBackground(w: number, h: number): void {
-    // Deep gradient
-    const g = this.add.graphics();
-    g.fillGradientStyle(0x0b1120, 0x0f2847, 0x0c3b2e, 0x0b1120, 1);
-    g.fillRect(0, 0, w, h);
+    const coverScale = Math.max(width / background.width, height / background.height);
+    background.setScale(coverScale);
 
-    // Large soft circles for depth
-    this.add.circle(w * 0.15, h * 0.3, Math.min(w, h) * 0.35, 0x166534, 0.06);
-    this.add.circle(w * 0.85, h * 0.7, Math.min(w, h) * 0.4, 0x1d4ed8, 0.05);
-    this.add.circle(w * 0.5, h * 0.1, Math.min(w, h) * 0.25, 0x67e8f9, 0.04);
-
-    // Horizontal subtle divider line
-    const lineG = this.add.graphics();
-    lineG.fillGradientStyle(0x22c55e, 0x3b82f6, 0x8b5cf6, 0x22c55e, 0.15, 0.4, 0.4, 0.15);
-    lineG.fillRect(w * 0.1, h * 0.48, w * 0.8, 2);
-  }
-
-  /* ================================================================ */
-  /*  FLOATING PARTICLES                                              */
-  /* ================================================================ */
-  private initParticles(w: number, h: number): void {
-    this.particleGraphics = this.add.graphics().setDepth(1);
-    const colors = [0x22c55e, 0x3b82f6, 0xfbbf24, 0x8b5cf6, 0x67e8f9];
-    this.particles = [];
-
-    for (let i = 0; i < 35; i++) {
-      this.particles.push({
-        x: Phaser.Math.Between(0, w),
-        y: Phaser.Math.Between(0, h),
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: (Math.random() - 0.5) * 0.3 - 0.15,
-        r: Phaser.Math.Between(2, 5),
-        color: colors[i % colors.length],
-        alpha: Math.random() * 0.25 + 0.08
-      });
+    const scaledHeight = background.height * coverScale;
+    const verticalOverflow = Math.max(0, scaledHeight - height);
+    if (verticalOverflow > 0) {
+      background.setY(height * 0.5 + Math.min(verticalOverflow * 0.22, height * 0.08));
     }
+
+    const bottomShade = this.add.graphics().setDepth(1);
+    bottomShade.fillGradientStyle(0x000000, 0x000000, 0x000000, 0x000000, 0, 0, 0.46, 0.46);
+    bottomShade.fillRect(0, height * 0.45, width, height * 0.55);
   }
 
-  private updateParticles(): void {
-    const { width, height } = this.cameras.main;
-    const g = this.particleGraphics;
-    g.clear();
+  private drawButtons(width: number, height: number): void {
+    const uiScale = this.getUiScale(width, height);
+    const maxButtonWidth = Math.max(160, Math.min(380, width - 32));
+    const minButtonWidth = Math.min(220, maxButtonWidth);
+    const buttonWidth = Phaser.Math.Clamp(width < 560 ? width * 0.78 : width * 0.31, minButtonWidth, maxButtonWidth);
+    const buttonHeight = Phaser.Math.Clamp(58 * uiScale, 42, 66);
+    const gap = Phaser.Math.Clamp(14 * uiScale, 8, 18);
+    const totalHeight = buttonHeight * 3 + gap * 2;
+    const bottomPad = Phaser.Math.Clamp(28 * uiScale, 14, 34);
+    const minStartY = buttonHeight * 0.5 + 12;
+    const maxStartY = height - bottomPad - totalHeight + buttonHeight * 0.5;
+    const preferredStartY = height * (height < 520 ? 0.54 : 0.64);
+    const startY = Phaser.Math.Clamp(preferredStartY, minStartY, Math.max(minStartY, maxStartY));
+    const x = width * 0.5;
+    const primaryFontSize = Math.floor(Phaser.Math.Clamp(30 * uiScale, 18, 32));
+    const secondaryFontSize = Math.floor(Phaser.Math.Clamp(24 * uiScale, 16, 26));
 
-    for (const p of this.particles) {
-      p.x += p.vx;
-      p.y += p.vy;
-
-      if (p.x < -10) p.x = width + 10;
-      if (p.x > width + 10) p.x = -10;
-      if (p.y < -10) p.y = height + 10;
-      if (p.y > height + 10) p.y = -10;
-
-      g.fillStyle(p.color, p.alpha);
-      g.fillCircle(p.x, p.y, p.r);
-    }
-  }
-
-  /* ================================================================ */
-  /*  TITLE                                                           */
-  /* ================================================================ */
-  private drawTitle(w: number, h: number): void {
-    const uiScale = Phaser.Math.Clamp(Math.min(w / 1280, h / 720), 0.6, 1.4);
-
-    // Main title
-    this.add.text(w * 0.5, h * 0.24, "Detetive na\nPropriedade", {
-      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-      fontSize: `${Math.floor(68 * uiScale)}px`,
-      color: "#f1f5f9",
-      fontStyle: "700",
-      align: "center",
-      lineSpacing: 6
-    }).setOrigin(0.5).setDepth(2);
-
-    // Tagline
-    this.add.text(w * 0.5, h * 0.42, "Aprendizado prático sobre segurança ambiental no campo", {
-      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-      fontSize: `${Math.floor(20 * uiScale)}px`,
-      color: "#94a3b8",
-      align: "center",
-      wordWrap: { width: w * 0.7 }
-    }).setOrigin(0.5).setDepth(2);
-  }
-
-  /* ================================================================ */
-  /*  BUTTONS                                                         */
-  /* ================================================================ */
-  private drawButtons(w: number, h: number): void {
-    const uiScale = Phaser.Math.Clamp(Math.min(w / 1280, h / 720), 0.6, 1.4);
-    const btnW = Math.min(w * 0.35, 420);
-    const btnH = Math.max(60, Math.floor(68 * uiScale));
-    const gap = Math.max(16, Math.floor(20 * uiScale));
-    const startY = h * 0.58;
-
-    // "Novo Jogo" button
-    const newGameBtn = createButton(this, w * 0.5, startY, "Novo Jogo", () => {
+    this.addMenuButton(createButton(this, x, startY, "Novo Jogo", () => {
       this.audio.play("click");
       gameStore.resetCurrentSession();
-      // Clear saved position
       this.registry.remove("playerX");
       this.registry.remove("playerY");
       this.scene.start(SCENE_KEYS.map);
     }, {
-      width: btnW,
-      height: btnH,
-      backgroundColor: 0x166534,
-      hoverBackgroundColor: 0x15803d,
-      borderColor: 0x22c55e,
-      hoverBorderColor: 0x4ade80,
-      textColor: "#f0fdf4",
-      fontSize: `${Math.floor(30 * uiScale)}px`,
+      width: buttonWidth,
+      height: buttonHeight,
+      backgroundColor: 0xfacc15,
+      hoverBackgroundColor: 0xfbbf24,
+      borderColor: 0x7c2d12,
+      hoverBorderColor: 0x451a03,
+      textColor: "#3b2203",
+      fontSize: `${primaryFontSize}px`,
       depth: 10
-    });
-    this.menuButtons.push(newGameBtn);
+    }));
 
-    // "Continuar" button
     const hasSavedProgress = gameStore.getTotalScore() > 0;
-    const continueBtn = createButton(this, w * 0.5, startY + btnH + gap, "Continuar", () => {
+    const continueButton = createButton(this, x, startY + buttonHeight + gap, "Continuar", () => {
       this.audio.play("click");
       this.scene.start(SCENE_KEYS.map);
     }, {
-      width: btnW,
-      height: btnH,
-      backgroundColor: hasSavedProgress ? 0x1e3a8a : 0x1e293b,
-      hoverBackgroundColor: hasSavedProgress ? 0x1d4ed8 : 0x334155,
-      borderColor: hasSavedProgress ? 0x3b82f6 : 0x475569,
-      hoverBorderColor: hasSavedProgress ? 0x60a5fa : 0x64748b,
-      textColor: hasSavedProgress ? "#dbeafe" : "#64748b",
-      fontSize: `${Math.floor(30 * uiScale)}px`,
+      width: buttonWidth,
+      height: buttonHeight,
+      backgroundColor: hasSavedProgress ? 0x166534 : 0x1f2937,
+      hoverBackgroundColor: hasSavedProgress ? 0x15803d : 0x374151,
+      borderColor: hasSavedProgress ? 0x86efac : 0x6b7280,
+      hoverBorderColor: hasSavedProgress ? 0xbbf7d0 : 0x9ca3af,
+      textColor: hasSavedProgress ? "#f0fdf4" : "#d1d5db",
+      fontSize: `${primaryFontSize}px`,
       depth: 10
     });
-    this.menuButtons.push(continueBtn);
 
     if (!hasSavedProgress) {
-      continueBtn.container.setAlpha(0.5);
-      continueBtn.container.disableInteractive();
+      continueButton.container.setAlpha(0.55);
+      continueButton.container.disableInteractive();
     }
+    this.addMenuButton(continueButton);
 
-    // "Ranking" button (smaller, below)
-    const rankingBtn = createButton(this, w * 0.5, startY + (btnH + gap) * 2 + 8, "Ranking", () => {
+    this.addMenuButton(createButton(this, x, startY + (buttonHeight + gap) * 2, "Ranking", () => {
       this.audio.play("click");
       this.scene.start(SCENE_KEYS.ranking);
     }, {
-      width: Math.min(btnW * 0.65, 280),
-      height: Math.max(50, Math.floor(54 * uiScale)),
-      backgroundColor: 0x451a03,
-      hoverBackgroundColor: 0x78350f,
-      borderColor: 0xea580c,
-      hoverBorderColor: 0xfb923c,
-      textColor: "#ffedd5",
-      fontSize: `${Math.floor(24 * uiScale)}px`,
+      width: Math.min(buttonWidth * 0.74, 280),
+      height: Math.max(40, buttonHeight * 0.82),
+      backgroundColor: 0x0f766e,
+      hoverBackgroundColor: 0x0d9488,
+      borderColor: 0x99f6e4,
+      hoverBorderColor: 0xccfbf1,
+      textColor: "#ecfeff",
+      fontSize: `${secondaryFontSize}px`,
       depth: 10
-    });
-    this.menuButtons.push(rankingBtn);
-
-    // Version / credit
-    this.add.text(w * 0.5, h - 28, "v2.0  •  Educação Ambiental", {
-      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-      fontSize: `${Math.floor(14 * uiScale)}px`,
-      color: "#475569"
-    }).setOrigin(0.5).setDepth(2);
+    }));
   }
 
-  /* ================================================================ */
-  /*  KEYBOARD NAVIGATION                                             */
-  /* ================================================================ */
+  private addMenuButton(button: GameButton): void {
+    const index = this.menuButtons.length;
+    this.menuButtons.push(button);
+
+    button.container.on("pointerover", () => this.setFocus(index));
+    button.container.on("pointerout", () => {
+      if (this.focusIndex === index) {
+        this.clearFocus();
+      }
+    });
+  }
+
+  private getUiScale(width: number, height: number): number {
+    return Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.5, 1.15);
+  }
+
   private setupKeyboard(): void {
     const kb = this.input.keyboard;
     if (!kb) return;
@@ -226,21 +183,15 @@ export class HomeScene extends Phaser.Scene {
     keyS.on("down", moveDown);
     keyEnter.on("down", confirm);
     keySpace.on("down", confirm);
-
-    // Sync mouse hover
-    this.menuButtons.forEach((btn, idx) => {
-      btn.container.on("pointerover", () => this.setFocus(idx));
-      btn.container.on("pointerout", () => {
-        if (this.focusIndex === idx) this.clearFocus();
-      });
-    });
   }
 
   private moveFocus(dir: number): void {
     const count = this.menuButtons.length;
     if (count === 0) return;
 
-    if (this.focusIndex >= 0) this.menuButtons[this.focusIndex].setFocused(false);
+    if (this.focusIndex >= 0) {
+      this.menuButtons[this.focusIndex].setFocused(false);
+    }
 
     if (this.focusIndex < 0) {
       this.focusIndex = dir > 0 ? 0 : count - 1;
@@ -248,27 +199,34 @@ export class HomeScene extends Phaser.Scene {
       this.focusIndex = (this.focusIndex + dir + count) % count;
     }
 
-    // Skip disabled buttons
-    const btn = this.menuButtons[this.focusIndex];
-    if (btn.container.alpha < 0.6) {
-      // try next
+    const button = this.menuButtons[this.focusIndex];
+    if (button.container.alpha < 0.6) {
       this.moveFocus(dir);
       return;
     }
 
-    btn.setFocused(true);
+    button.setFocused(true);
     this.audio.play("click");
   }
 
   private setFocus(index: number): void {
-    if (this.focusIndex === index) return;
-    if (this.focusIndex >= 0) this.menuButtons[this.focusIndex].setFocused(false);
+    const button = this.menuButtons[index];
+    if (!button || button.container.alpha < 0.6 || this.focusIndex === index) {
+      return;
+    }
+
+    if (this.focusIndex >= 0) {
+      this.menuButtons[this.focusIndex].setFocused(false);
+    }
+
     this.focusIndex = index;
-    this.menuButtons[this.focusIndex].setFocused(true);
+    button.setFocused(true);
   }
 
   private clearFocus(): void {
-    if (this.focusIndex >= 0) this.menuButtons[this.focusIndex].setFocused(false);
+    if (this.focusIndex >= 0) {
+      this.menuButtons[this.focusIndex].setFocused(false);
+    }
     this.focusIndex = -1;
   }
 }

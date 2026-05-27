@@ -2,7 +2,7 @@ import Phaser from "phaser";
 
 import { GameAudio } from "../audio/GameAudio";
 import { epiItems, type EpiItem } from "../data/epiItems";
-import { SCENE_KEYS } from "../constants";
+import { REGISTRY_KEYS, SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
 import { createButton } from "../ui/Button";
 import { showModal } from "../ui/Modal";
@@ -26,6 +26,7 @@ export class DressUpScene extends Phaser.Scene {
   private zones: ZoneRuntime[] = [];
   private items: ItemRuntime[] = [];
   private modalOpen = false;
+  private returningToMap = false;
   private equippedText!: Phaser.GameObjects.Text;
   private trayBounds = new Phaser.Geom.Rectangle(70, 560, 1140, 140);
 
@@ -77,12 +78,12 @@ export class DressUpScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    createButton(this, 108 * uiScale, headerY, "Menu", () => {
+    createButton(this, 108 * uiScale, headerY, "Voltar", () => {
       if (this.modalOpen) {
         return;
       }
       this.audio.play("click");
-      this.scene.start(SCENE_KEYS.map);
+      this.returnToMap();
     }, {
       width: 162 * uiScale,
       height: 52 * uiScale,
@@ -361,8 +362,8 @@ export class DressUpScene extends Phaser.Scene {
         title: "Trabalhador pronto",
         message: "Todos os EPIs corretos foram equipados.",
         tone: "complete",
-        confirmLabel: "Voltar ao menu",
-        onConfirm: () => this.scene.start(SCENE_KEYS.home)
+        confirmLabel: "Concluir",
+        onConfirm: () => this.returnToMap()
       });
     }
   }
@@ -402,6 +403,20 @@ export class DressUpScene extends Phaser.Scene {
     const totalCorrect = epiItems.filter((item) => item.isCorrect).length;
     const equippedCorrect = this.items.filter((item) => item.equipped && item.data.isCorrect).length;
     this.equippedText.setText(`${equippedCorrect} / ${totalCorrect} EPIs`);
+  }
+
+  private returnToMap(): void {
+    if (this.returningToMap) return;
+
+    this.returningToMap = true;
+    this.modalOpen = false;
+    this.input.enabled = false;
+    this.tweens.killAll();
+
+    this.registry.set(REGISTRY_KEYS.returnToMap, true);
+    this.game.scene.stop(SCENE_KEYS.home);
+    this.game.scene.start(SCENE_KEYS.home);
+    this.game.scene.stop(SCENE_KEYS.dressUp);
   }
 
   private openModal(args: {
