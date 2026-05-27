@@ -6,6 +6,8 @@ import {
   MAP_HEIGHT,
   MAP_WIDTH,
   PLAYER_RADIUS,
+  PLAYER_SPRITE_SCALE,
+  PLAYER_SPRITE_SHEET,
   PLAYER_SPEED,
   SCENE_KEYS
 } from "../constants";
@@ -23,11 +25,27 @@ interface StationRuntime {
   checkMark?: Phaser.GameObjects.Text;
 }
 
+type PlayerDirection = "down" | "left" | "right" | "up";
+
+const PLAYER_ANIMATIONS: Record<PlayerDirection, string> = {
+  down: "player-walk-down",
+  left: "player-walk-left",
+  right: "player-walk-right",
+  up: "player-walk-up"
+};
+
+const PLAYER_IDLE_FRAMES: Record<PlayerDirection, number> = {
+  down: 0,
+  left: 3,
+  right: 6,
+  up: 9
+};
+
 export class MapScene extends Phaser.Scene {
   /* ---- core objects ---- */
   private player!: Phaser.GameObjects.Container;
-  private playerBody!: Phaser.GameObjects.Arc;
-  private dirIndicator!: Phaser.GameObjects.Triangle;
+  private playerSprite!: Phaser.GameObjects.Sprite;
+  private playerDirection: PlayerDirection = "down";
 
   /* ---- input ---- */
   private cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
@@ -52,9 +70,6 @@ export class MapScene extends Phaser.Scene {
   /* ---- audio ---- */
   private audio!: GameAudio;
 
-  /* ---- player facing direction for the indicator ---- */
-  private facingAngle = Math.PI / 2; // default: facing down
-
   constructor() {
     super(SCENE_KEYS.map);
   }
@@ -71,6 +86,7 @@ export class MapScene extends Phaser.Scene {
     this.drawTerrain();
     this.drawDecorations();
     this.buildStations();
+    this.createPlayerAnimations();
     this.createPlayer();
     this.setupCamera();
     this.setupInput();
@@ -312,6 +328,27 @@ export class MapScene extends Phaser.Scene {
   /* ================================================================ */
   /*  PLAYER                                                          */
   /* ================================================================ */
+  private createPlayerAnimations(): void {
+    const directions: Array<{ direction: PlayerDirection; frames: number[] }> = [
+      { direction: "down", frames: [0, 1, 2, 1] },
+      { direction: "left", frames: [3, 4, 5, 4] },
+      { direction: "right", frames: [6, 7, 8, 7] },
+      { direction: "up", frames: [9, 10, 11, 10] }
+    ];
+
+    directions.forEach(({ direction, frames }) => {
+      const key = PLAYER_ANIMATIONS[direction];
+      if (this.anims.exists(key)) return;
+
+      this.anims.create({
+        key,
+        frames: this.anims.generateFrameNumbers(PLAYER_SPRITE_SHEET.key, { frames }),
+        frameRate: 8,
+        repeat: -1
+      });
+    });
+  }
+
   private createPlayer(): void {
     // Restore position from registry if returning from a minigame
     const savedX = this.registry.get("playerX") as number | undefined;
@@ -319,27 +356,14 @@ export class MapScene extends Phaser.Scene {
     const startX = savedX ?? MAP_WIDTH / 2;
     const startY = savedY ?? MAP_HEIGHT / 2;
 
-    // Player body (circle)
-    this.playerBody = this.add.circle(0, 0, PLAYER_RADIUS, 0xfbbf24, 1);
-    this.playerBody.setStrokeStyle(2, 0x78350f);
+    const shadowOuter = this.add.ellipse(0, PLAYER_RADIUS + 10, 70, 22, 0x0f172a, 0.14);
+    const shadowInner = this.add.ellipse(0, PLAYER_RADIUS + 9, 54, 14, 0x0f172a, 0.22);
+    this.playerSprite = this.add
+      .sprite(0, 0, PLAYER_SPRITE_SHEET.key, PLAYER_IDLE_FRAMES.down)
+      .setOrigin(0.5, 0.82)
+      .setScale(PLAYER_SPRITE_SCALE);
 
-    // Outline glow
-    const glow = this.add.circle(0, 0, PLAYER_RADIUS + 3, 0xfde68a, 0.3);
-
-    // Direction indicator (triangle pointing down by default)
-    this.dirIndicator = this.add.triangle(
-      0, PLAYER_RADIUS + 6,
-      -6, 0,
-      0, 8,
-      6, 0,
-      0xfbbf24, 1
-    ).setOrigin(0.5);
-
-    // Eyes
-    const eyeL = this.add.circle(-5, -4, 2.5, 0x0f172a, 1);
-    const eyeR = this.add.circle(5, -4, 2.5, 0x0f172a, 1);
-
-    this.player = this.add.container(startX, startY, [glow, this.playerBody, this.dirIndicator, eyeL, eyeR]);
+    this.player = this.add.container(startX, startY, [shadowOuter, shadowInner, this.playerSprite]);
     this.player.setDepth(20);
   }
 
@@ -384,12 +408,16 @@ export class MapScene extends Phaser.Scene {
     if (this.cursors.up!.isDown || this.keyW.isDown) vy -= 1;
     if (this.cursors.down!.isDown || this.keyS.isDown) vy += 1;
 
-    if (vx === 0 && vy === 0) return;
+    if (vx === 0 && vy === 0) {
+      this.stopPlayerAnimation();
+      return;
+    }
 
     // Normalize diagonal
     const len = Math.sqrt(vx * vx + vy * vy);
     vx /= len;
     vy /= len;
+    this.updatePlayerAnimation(this.getPlayerDirection(vx, vy));
 
     const speed = PLAYER_SPEED * (delta / 1000);
     let newX = this.player.x + vx * speed;
@@ -431,14 +459,26 @@ export class MapScene extends Phaser.Scene {
     newY = Phaser.Math.Clamp(newY, r, MAP_HEIGHT - r);
 
     this.player.setPosition(newX, newY);
+  }
 
-    // Update direction indicator
-    this.facingAngle = Math.atan2(vy, vx);
-    this.dirIndicator.setPosition(
-      Math.cos(this.facingAngle) * (PLAYER_RADIUS + 6),
-      Math.sin(this.facingAngle) * (PLAYER_RADIUS + 6)
-    );
-    this.dirIndicator.setRotation(this.facingAngle - Math.PI / 2);
+  private getPlayerDirection(vx: number, vy: number): PlayerDirection {
+    if (Math.abs(vx) > Math.abs(vy)) {
+      return vx < 0 ? "left" : "right";
+    }
+
+    return vy < 0 ? "up" : "down";
+  }
+
+  private updatePlayerAnimation(direction: PlayerDirection): void {
+    this.playerDirection = direction;
+    this.playerSprite.play(PLAYER_ANIMATIONS[direction], true);
+  }
+
+  private stopPlayerAnimation(): void {
+    if (!this.playerSprite) return;
+
+    this.playerSprite.stop();
+    this.playerSprite.setFrame(PLAYER_IDLE_FRAMES[this.playerDirection]);
   }
 
   /* ================================================================ */

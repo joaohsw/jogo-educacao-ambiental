@@ -23,6 +23,13 @@ export const MAP_WIDTH = 2000;
 export const MAP_HEIGHT = 1200;
 export const PLAYER_SPEED = 220;
 export const PLAYER_RADIUS = 14;
+export const PLAYER_SPRITE_SHEET = {
+  key: "player-walk",
+  path: "/images/player-walk.png",
+  frameWidth: 192,
+  frameHeight: 256
+} as const;
+export const PLAYER_SPRITE_SCALE = 0.36;
 export const INTERACTION_RADIUS = 90;
 
 export const MINI_GAME_IDS: MiniGameId[] = [
