@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 
-import { GameAudio } from "../audio/GameAudio";
 import { packagingCards, type PackagingCard } from "../data/packagingCards";
-import { REGISTRY_KEYS, SCENE_KEYS } from "../constants";
+import { SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
 import { createButton } from "../ui/Button";
 import { showModal } from "../ui/Modal";
+import { MiniGameScene } from "./MiniGameScene";
 
 interface SlotRuntime {
   order: number;
@@ -22,12 +22,9 @@ interface CardRuntime {
   placed: boolean;
 }
 
-export class PackagingScene extends Phaser.Scene {
-  private audio!: GameAudio;
+export class PackagingScene extends MiniGameScene {
   private slots: SlotRuntime[] = [];
   private cards: CardRuntime[] = [];
-  private modalOpen = false;
-  private returningToMap = false;
   private trayBounds = new Phaser.Geom.Rectangle(80, 360, 1120, 300);
 
   constructor() {
@@ -35,7 +32,11 @@ export class PackagingScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.audio = new GameAudio(this);
+    this.slots = [];
+    this.cards = [];
+    this.trayBounds = new Phaser.Geom.Rectangle(80, 360, 1120, 300);
+    this.beginMiniGame();
+
     this.drawBackground();
     this.drawHeader();
     this.drawInstructions();
@@ -44,17 +45,11 @@ export class PackagingScene extends Phaser.Scene {
   }
 
   private drawBackground(): void {
-    const { width, height } = this.cameras.main;
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x0f172a, 0x1d4ed8, 0x0f766e, 0x14532d, 1);
-    bg.fillRect(0, 0, width, height);
-    this.add.circle(width * 0.87, height * 0.16, Math.min(width, height) * 0.18, 0xfacc15, 0.07);
-    this.add.circle(width * 0.14, height * 0.75, Math.min(width, height) * 0.2, 0x67e8f9, 0.06);
-
-    const shellW = width - 44;
-    const shellH = height - 34;
-    this.add.rectangle(width * 0.5 + 4, height * 0.5 + 6, shellW, shellH, 0x020617, 0.3);
-    this.add.rectangle(width * 0.5, height * 0.5, shellW, shellH, 0xf8fafc, 0.92).setStrokeStyle(2, 0xffffff, 0.75);
+    this.drawProjectionBackdrop({
+      panelColor: 0xf8fafc,
+      panelAlpha: 0.94,
+      borderColor: 0x93c5fd
+    });
   }
 
   private drawHeader(): void {
@@ -329,7 +324,7 @@ export class PackagingScene extends Phaser.Scene {
         title: "Sequencia completa",
         message: "Voce concluiu a Jornada da Embalagem com sucesso.",
         tone: "complete",
-        confirmLabel: "Concluir",
+        confirmLabel: "Voltar",
         onConfirm: () => this.returnToMap()
       });
     }
@@ -364,20 +359,6 @@ export class PackagingScene extends Phaser.Scene {
       duration: 180,
       ease: "Quad.Out"
     });
-  }
-
-  private returnToMap(): void {
-    if (this.returningToMap) return;
-
-    this.returningToMap = true;
-    this.modalOpen = false;
-    this.input.enabled = false;
-    this.tweens.killAll();
-
-    this.registry.set(REGISTRY_KEYS.returnToMap, true);
-    this.game.scene.stop(SCENE_KEYS.home);
-    this.game.scene.start(SCENE_KEYS.home);
-    this.game.scene.stop(SCENE_KEYS.packaging);
   }
 
   private openModal(args: {

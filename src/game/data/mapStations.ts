@@ -1,4 +1,4 @@
-import { SCENE_KEYS } from "../constants";
+import { MAP_STATION_ASSETS, SCENE_KEYS } from "../constants";
 import type { MiniGameId } from "../types/gameTypes";
 
 export interface MapStation {
@@ -11,6 +11,11 @@ export interface MapStation {
   color: number;
   borderColor: number;
   roofColor: number;
+  assetKey?: string;
+  assetDisplayWidth?: number;
+  assetVisibleWidth?: number;
+  assetVisibleHeight?: number;
+  assetVisibleOffsetY?: number;
   sceneKey: string;
   sceneData?: Record<string, unknown>;
   miniGameId?: MiniGameId;
@@ -22,11 +27,16 @@ export const mapStations: MapStation[] = [
     label: "Lavoura",
     x: 320,
     y: 240,
-    width: 160,
-    height: 120,
+    width: 180,
+    height: 160,
     color: 0x166534,
     borderColor: 0x14532d,
     roofColor: 0x15803d,
+    assetKey: MAP_STATION_ASSETS.lavoura.key,
+    assetDisplayWidth: 315,
+    assetVisibleWidth: 200,
+    assetVisibleHeight: 194,
+    assetVisibleOffsetY: -5,
     sceneKey: SCENE_KEYS.spotError,
     sceneData: {
       sceneTitle: "Cena 1 - Lavoura",
@@ -41,11 +51,16 @@ export const mapStations: MapStation[] = [
     label: "Depósito",
     x: 1650,
     y: 260,
-    width: 160,
-    height: 120,
+    width: 150,
+    height: 140,
     color: 0x78350f,
     borderColor: 0x451a03,
     roofColor: 0x92400e,
+    assetKey: MAP_STATION_ASSETS.deposito.key,
+    assetDisplayWidth: 380,
+    assetVisibleWidth: 190,
+    assetVisibleHeight: 214,
+    assetVisibleOffsetY: -9,
     sceneKey: SCENE_KEYS.spotError,
     sceneData: {
       sceneTitle: "Cena 2 - Deposito",
@@ -60,11 +75,16 @@ export const mapStations: MapStation[] = [
     label: "Descarte",
     x: 340,
     y: 900,
-    width: 150,
-    height: 110,
+    width: 215,
+    height: 120,
     color: 0x1e3a8a,
     borderColor: 0x1e40af,
     roofColor: 0x2563eb,
+    assetKey: MAP_STATION_ASSETS.descarte.key,
+    assetDisplayWidth: 315,
+    assetVisibleWidth: 263,
+    assetVisibleHeight: 172,
+    assetVisibleOffsetY: 3,
     sceneKey: SCENE_KEYS.packaging,
     miniGameId: "jornada_embalagem"
   },
@@ -73,11 +93,16 @@ export const mapStations: MapStation[] = [
     label: "Galpão EPIs",
     x: 1620,
     y: 880,
-    width: 160,
-    height: 120,
+    width: 185,
+    height: 135,
     color: 0x581c87,
     borderColor: 0x6b21a8,
     roofColor: 0x7e22ce,
+    assetKey: MAP_STATION_ASSETS.galpaoEpis.key,
+    assetDisplayWidth: 330,
+    assetVisibleWidth: 236,
+    assetVisibleHeight: 189,
+    assetVisibleOffsetY: -9,
     sceneKey: SCENE_KEYS.dressUp,
     miniGameId: "vista_se"
   },

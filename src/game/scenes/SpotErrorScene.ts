@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 
-import { GameAudio } from "../audio/GameAudio";
-import { REGISTRY_KEYS, SCENE_KEYS } from "../constants";
+import { SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
 import type { MiniGameId } from "../types/gameTypes";
 import { createButton } from "../ui/Button";
 import { showModal } from "../ui/Modal";
+import { MiniGameScene } from "./MiniGameScene";
 
 interface SpotSceneData {
   sceneTitle: string;
@@ -22,22 +22,22 @@ interface HotspotRuntime {
   found: boolean;
 }
 
-export class SpotErrorScene extends Phaser.Scene {
-  private audio!: GameAudio;
+export class SpotErrorScene extends MiniGameScene {
   private configData!: SpotSceneData;
   private hotspots: HotspotRuntime[] = [];
   private counterText!: Phaser.GameObjects.Text;
-  private modalOpen = false;
   private completionShown = false;
   private frameRect!: Phaser.Geom.Rectangle;
-  private returningToMap = false;
 
   constructor() {
     super(SCENE_KEYS.spotError);
   }
 
   create(rawData: SpotSceneData): void {
-    this.audio = new GameAudio(this);
+    this.hotspots = [];
+    this.completionShown = false;
+    this.beginMiniGame();
+
     this.configData = rawData;
 
     this.drawBackground();
@@ -46,21 +46,21 @@ export class SpotErrorScene extends Phaser.Scene {
   }
 
   private drawBackground(): void {
-    const { width, height } = this.cameras.main;
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x0f172a, 0x1d4ed8, 0x0f766e, 0x14532d, 1);
-    bg.fillRect(0, 0, width, height);
-    this.add.circle(width * 0.88, height * 0.18, Math.min(width, height) * 0.16, 0xfacc15, 0.08);
-    this.add.circle(width * 0.1, height * 0.78, Math.min(width, height) * 0.2, 0x67e8f9, 0.07);
+    this.drawProjectionBackdrop({
+      panelColor: 0xf8fafc,
+      panelAlpha: 0.92,
+      borderColor: 0x99f6e4
+    });
   }
 
   private drawTopHeader(): void {
     const { width, height } = this.cameras.main;
     const uiScale = Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.72, 1.35);
 
-    const headerHeight = Math.max(84, Math.floor(92 * uiScale));
-    const headerY = 20 + headerHeight * 0.5;
-    const headerWidth = width - 44;
+    const headerHeight = Math.max(70, Math.floor(78 * uiScale));
+    const headerTop = Math.max(12, Math.floor(14 * uiScale));
+    const headerY = headerTop + headerHeight * 0.5;
+    const headerWidth = width - Math.max(34, Math.floor(40 * uiScale));
 
     this.add.rectangle(width * 0.5 + 4, headerY + 6, headerWidth, headerHeight, 0x020617, 0.32);
     this.add.rectangle(width * 0.5, headerY, headerWidth, headerHeight, 0xf8fafc, 0.96).setStrokeStyle(2, 0x0f172a);
@@ -68,7 +68,7 @@ export class SpotErrorScene extends Phaser.Scene {
     this.add
       .text(width * 0.5, headerY, this.configData.sceneTitle, {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(52 * uiScale)}px`,
+        fontSize: `${Math.floor(44 * uiScale)}px`,
         color: "#0f172a",
         fontStyle: "700"
       })
@@ -88,24 +88,25 @@ export class SpotErrorScene extends Phaser.Scene {
       borderColor: 0x334155,
       hoverBorderColor: 0x1e293b,
       textColor: "#0f172a",
-      fontSize: `${Math.floor(28 * uiScale)}px`
+      fontSize: `${Math.floor(26 * uiScale)}px`
     });
 
     this.counterText = this.add
       .text(width - 118 * uiScale, headerY, "", {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(30 * uiScale)}px`,
+        fontSize: `${Math.floor(28 * uiScale)}px`,
         color: "#0f172a",
         fontStyle: "700"
       })
       .setOrigin(0.5);
 
-    const frameMargin = Math.max(18, Math.floor(26 * uiScale));
+    const frameMargin = Math.max(10, Math.floor(12 * uiScale));
+    const headerBottom = headerY + headerHeight * 0.5;
     this.frameRect = new Phaser.Geom.Rectangle(
       frameMargin,
-      headerY + headerHeight * 0.5 + frameMargin,
+      headerBottom + frameMargin,
       width - frameMargin * 2,
-      height - (headerY + headerHeight * 0.5 + frameMargin * 2)
+      height - (headerBottom + frameMargin * 2)
     );
   }
 
@@ -252,7 +253,7 @@ export class SpotErrorScene extends Phaser.Scene {
       title: "Cena concluida",
       message: `Voce encontrou todos os ${this.hotspots.length} erros.`,
       tone: "complete",
-      confirmLabel: "Concluir",
+      confirmLabel: "Voltar",
       onConfirm: () => this.returnToMap()
     });
   }
@@ -260,20 +261,6 @@ export class SpotErrorScene extends Phaser.Scene {
   private updateCounter(): void {
     const found = this.hotspots.filter((item) => item.found).length;
     this.counterText.setText(`${found} / ${this.hotspots.length} erros`);
-  }
-
-  private returnToMap(): void {
-    if (this.returningToMap) return;
-
-    this.returningToMap = true;
-    this.modalOpen = false;
-    this.input.enabled = false;
-    this.tweens.killAll();
-
-    this.registry.set(REGISTRY_KEYS.returnToMap, true);
-    this.game.scene.stop(SCENE_KEYS.home);
-    this.game.scene.start(SCENE_KEYS.home);
-    this.game.scene.stop(SCENE_KEYS.spotError);
   }
 
   private openModal(args: {

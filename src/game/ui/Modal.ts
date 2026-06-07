@@ -102,9 +102,31 @@ export const showModal = (
     if (didClose) return;
 
     didClose = true;
+
+    // Immediately hide the modal so it's visually gone and can't receive
+    // further input, but do NOT destroy it yet — destroying interactive
+    // children mid-input-event corrupts Phaser's input manager.
+    modalContainer.setVisible(false);
+    modalContainer.setActive(false);
+
+    // Disable interactivity on the button so no further clicks register
+    button.disableInteractive();
+
+    // Fire the callback synchronously so scene transitions run from within
+    // the normal input event flow.
     options.onConfirm?.();
-    if (modalContainer.active) {
-      modalContainer.destroy();
+
+    // Defer the actual destruction to the next frame, after the input
+    // event has fully completed.  If the scene was already shut down by
+    // the onConfirm callback (e.g. returnToMap), the
+    // container will have been cleaned up automatically, so the guard
+    // prevents a double-destroy error.
+    if (scene.sys && scene.sys.isActive()) {
+      scene.time.delayedCall(0, () => {
+        if (modalContainer && modalContainer.active) {
+          modalContainer.destroy();
+        }
+      });
     }
   };
 

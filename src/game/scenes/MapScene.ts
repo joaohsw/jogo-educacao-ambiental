@@ -20,8 +20,10 @@ import { gameStore } from "../state/GameStore";
 
 interface StationRuntime {
   data: MapStation;
-  body: Phaser.GameObjects.Rectangle;
+  collisionRect: Phaser.Geom.Rectangle;
+  highlight: Phaser.GameObjects.Rectangle;
   promptText: Phaser.GameObjects.Text;
+  promptBaseY: number;
   checkMark?: Phaser.GameObjects.Text;
 }
 
@@ -221,41 +223,11 @@ export class MapScene extends Phaser.Scene {
   /* ================================================================ */
   private buildStations(): void {
     mapStations.forEach((station) => {
-      const { x, y, width, height, color, borderColor, roofColor } = station;
-
-      // Building shadow
-      this.add.rectangle(x + 6, y + 8, width, height, 0x020617, 0.25).setOrigin(0.5);
-
-      // Building body
-      const body = this.add
-        .rectangle(x, y, width, height, color, 0.95)
-        .setOrigin(0.5)
-        .setStrokeStyle(3, borderColor);
-
-      // Roof (triangle-ish top bar)
-      this.add.rectangle(x, y - height / 2 - 10, width + 20, 22, roofColor, 1).setOrigin(0.5);
-      this.add.triangle(
-        x, y - height / 2 - 26,
-        -width / 2 - 14, 0,
-        0, -18,
-        width / 2 + 14, 0,
-        roofColor, 1
-      ).setOrigin(0.5);
-
-      // Door
-      this.add.rectangle(x, y + height / 2 - 16, 24, 32, 0x451a03, 1).setOrigin(0.5);
-      this.add.circle(x + 8, y + height / 2 - 16, 3, 0xfbbf24, 1);
-
-      // Window(s)
-      if (width > 120) {
-        this.add.rectangle(x - 30, y - 10, 22, 20, 0x7dd3fc, 0.8).setOrigin(0.5).setStrokeStyle(2, 0xffffff, 0.6);
-        this.add.rectangle(x + 30, y - 10, 22, 20, 0x7dd3fc, 0.8).setOrigin(0.5).setStrokeStyle(2, 0xffffff, 0.6);
-      } else {
-        this.add.rectangle(x, y - 10, 22, 20, 0x7dd3fc, 0.8).setOrigin(0.5).setStrokeStyle(2, 0xffffff, 0.6);
-      }
+      const { x, y, width, height } = station;
+      const visualBounds = this.drawStationVisual(station);
 
       // Label
-      this.add.text(x, y + height / 2 + 18, station.label, {
+      this.add.text(x, visualBounds.bottom + 16, station.label, {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
         fontSize: "18px",
         color: "#ffffff",
@@ -265,8 +237,9 @@ export class MapScene extends Phaser.Scene {
       }).setOrigin(0.5);
 
       // Interaction prompt (hidden by default)
+      const promptBaseY = visualBounds.top - 28;
       const promptText = this.add
-        .text(x, y - height / 2 - 72, "[ E ]  Entrar", {
+        .text(x, promptBaseY, "[ E ]  Entrar", {
           fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
           fontSize: "20px",
           color: "#fef9c3",
@@ -278,20 +251,98 @@ export class MapScene extends Phaser.Scene {
         .setDepth(50)
         .setVisible(false);
 
+      const highlight = this.add
+        .rectangle(
+          visualBounds.centerX,
+          visualBounds.centerY,
+          visualBounds.width + 18,
+          visualBounds.height + 14,
+          0xfef3c7,
+          0.08
+        )
+        .setStrokeStyle(4, 0xfbbf24, 1)
+        .setDepth(19)
+        .setVisible(false);
+
       // Collision rect for this building (slightly padded)
       const pad = 4;
-      this.colliders.push(new Phaser.Geom.Rectangle(
+      const collisionRect = new Phaser.Geom.Rectangle(
         x - width / 2 - pad,
         y - height / 2 - pad,
         width + pad * 2,
         height + pad * 2
-      ));
+      );
+      this.colliders.push(collisionRect);
 
-      const runtime: StationRuntime = { data: station, body, promptText };
+      const runtime: StationRuntime = { data: station, collisionRect, highlight, promptText, promptBaseY };
       this.stations.push(runtime);
     });
 
     this.refreshCompletionMarks();
+  }
+
+  private drawStationVisual(station: MapStation): Phaser.Geom.Rectangle {
+    if (station.assetKey) {
+      return this.drawAssetStation(station);
+    }
+
+    return this.drawGenericStation(station);
+  }
+
+  private drawAssetStation(station: MapStation): Phaser.Geom.Rectangle {
+    const { x, y, width, height } = station;
+    this.add.ellipse(x, y + height * 0.38, width * 0.86, height * 0.22, 0x0f172a, 0.2).setDepth(8);
+
+    const image = this.add.image(x, y, station.assetKey!).setOrigin(0.5).setDepth(18);
+    const displayWidth = station.assetDisplayWidth ?? width;
+    image.setScale(displayWidth / image.width);
+
+    const visualWidth = station.assetVisibleWidth ?? image.displayWidth;
+    const visualHeight = station.assetVisibleHeight ?? image.displayHeight;
+    const visualCenterY = y + (station.assetVisibleOffsetY ?? 0);
+    return new Phaser.Geom.Rectangle(
+      x - visualWidth / 2,
+      visualCenterY - visualHeight / 2,
+      visualWidth,
+      visualHeight
+    );
+  }
+
+  private drawGenericStation(station: MapStation): Phaser.Geom.Rectangle {
+    const { x, y, width, height, color, borderColor, roofColor } = station;
+
+    // Building shadow
+    this.add.rectangle(x + 6, y + 8, width, height, 0x020617, 0.25).setOrigin(0.5);
+
+    // Building body
+    this.add
+      .rectangle(x, y, width, height, color, 0.95)
+      .setOrigin(0.5)
+      .setStrokeStyle(3, borderColor);
+
+    // Roof (triangle-ish top bar)
+    this.add.rectangle(x, y - height / 2 - 10, width + 20, 22, roofColor, 1).setOrigin(0.5);
+    this.add.triangle(
+      x, y - height / 2 - 26,
+      -width / 2 - 14, 0,
+      0, -18,
+      width / 2 + 14, 0,
+      roofColor, 1
+    ).setOrigin(0.5);
+
+    // Door
+    this.add.rectangle(x, y + height / 2 - 16, 24, 32, 0x451a03, 1).setOrigin(0.5);
+    this.add.circle(x + 8, y + height / 2 - 16, 3, 0xfbbf24, 1);
+
+    // Window(s)
+    if (width > 120) {
+      this.add.rectangle(x - 30, y - 10, 22, 20, 0x7dd3fc, 0.8).setOrigin(0.5).setStrokeStyle(2, 0xffffff, 0.6);
+      this.add.rectangle(x + 30, y - 10, 22, 20, 0x7dd3fc, 0.8).setOrigin(0.5).setStrokeStyle(2, 0xffffff, 0.6);
+    } else {
+      this.add.rectangle(x, y - 10, 22, 20, 0x7dd3fc, 0.8).setOrigin(0.5).setStrokeStyle(2, 0xffffff, 0.6);
+    }
+
+    return new Phaser.Geom.Rectangle(x - width / 2, y - height / 2 - 26, width, height + 26);
   }
 
   private refreshCompletionMarks(): void {
@@ -489,9 +540,7 @@ export class MapScene extends Phaser.Scene {
     let closestDist = Infinity;
 
     for (const station of this.stations) {
-      const dx = this.player.x - station.data.x;
-      const dy = this.player.y - station.data.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
+      const dist = this.distanceToRect(this.player.x, this.player.y, station.collisionRect);
 
       if (dist < INTERACTION_RADIUS && dist < closestDist) {
         closest = station;
@@ -501,19 +550,25 @@ export class MapScene extends Phaser.Scene {
 
     if (this.activeStation && this.activeStation !== closest) {
       this.activeStation.promptText.setVisible(false);
-      this.activeStation.body.setStrokeStyle(3, this.activeStation.data.borderColor);
+      this.activeStation.highlight.setVisible(false);
     }
 
     this.activeStation = closest;
 
     if (closest) {
       closest.promptText.setVisible(true);
-      closest.body.setStrokeStyle(3, 0xfbbf24);
+      closest.highlight.setVisible(true);
 
       // Subtle bounce on the prompt
       const bounce = Math.sin(this.time.now / 300) * 3;
-      closest.promptText.setY(closest.data.y - closest.data.height / 2 - 72 + bounce);
+      closest.promptText.setY(closest.promptBaseY + bounce);
     }
+  }
+
+  private distanceToRect(x: number, y: number, rect: Phaser.Geom.Rectangle): number {
+    const nearX = Phaser.Math.Clamp(x, rect.x, rect.right);
+    const nearY = Phaser.Math.Clamp(y, rect.y, rect.bottom);
+    return Phaser.Math.Distance.Between(x, y, nearX, nearY);
   }
 
   /* ================================================================ */
@@ -525,7 +580,14 @@ export class MapScene extends Phaser.Scene {
     const station = this.activeStation;
     this.audio.play("click");
 
-    // Save player position so we can restore it later
+    if (station.data.miniGameId) {
+      this.scene.launch(station.data.sceneKey, station.data.sceneData);
+      this.scene.bringToTop(station.data.sceneKey);
+      this.scene.pause();
+      return;
+    }
+
+    // Save player position for non-overlay scenes such as the ranking.
     this.registry.set("playerX", this.player.x);
     this.registry.set("playerY", this.player.y);
 

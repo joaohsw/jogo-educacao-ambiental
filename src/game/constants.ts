@@ -8,13 +8,16 @@ export const MENU_BACKGROUND = {
   path: "/images/menu-principal.png"
 } as const;
 
+export const MAP_STATION_ASSETS = {
+  lavoura: { key: "station-lavoura", path: "/images/lavoura.png" },
+  deposito: { key: "station-deposito", path: "/images/deposito.png" },
+  descarte: { key: "station-descarte", path: "/images/descarte.png" },
+  galpaoEpis: { key: "station-galpao-epis", path: "/images/galpaoepis.png" }
+} as const;
+
 export const STORAGE_KEYS = {
   leaderboard: "detetive-na-propriedade.leaderboard.v1",
   playerName: "detetive-na-propriedade.player-name.v1"
-} as const;
-
-export const REGISTRY_KEYS = {
-  returnToMap: "detetive-na-propriedade.return-to-map"
 } as const;
 
 export const SCENE_KEYS = {

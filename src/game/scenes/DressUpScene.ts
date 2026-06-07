@@ -1,11 +1,11 @@
 import Phaser from "phaser";
 
-import { GameAudio } from "../audio/GameAudio";
 import { epiItems, type EpiItem } from "../data/epiItems";
-import { REGISTRY_KEYS, SCENE_KEYS } from "../constants";
+import { SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
 import { createButton } from "../ui/Button";
 import { showModal } from "../ui/Modal";
+import { MiniGameScene } from "./MiniGameScene";
 
 interface ZoneRuntime {
   id: string;
@@ -21,12 +21,9 @@ interface ItemRuntime {
   equipped: boolean;
 }
 
-export class DressUpScene extends Phaser.Scene {
-  private audio!: GameAudio;
+export class DressUpScene extends MiniGameScene {
   private zones: ZoneRuntime[] = [];
   private items: ItemRuntime[] = [];
-  private modalOpen = false;
-  private returningToMap = false;
   private equippedText!: Phaser.GameObjects.Text;
   private trayBounds = new Phaser.Geom.Rectangle(70, 560, 1140, 140);
 
@@ -35,7 +32,11 @@ export class DressUpScene extends Phaser.Scene {
   }
 
   create(): void {
-    this.audio = new GameAudio(this);
+    this.zones = [];
+    this.items = [];
+    this.trayBounds = new Phaser.Geom.Rectangle(70, 560, 1140, 140);
+    this.beginMiniGame();
+
     this.drawBackground();
     this.drawHeader();
     this.drawInstructions();
@@ -46,18 +47,11 @@ export class DressUpScene extends Phaser.Scene {
   }
 
   private drawBackground(): void {
-    const { width, height } = this.cameras.main;
-    const bg = this.add.graphics();
-    bg.fillGradientStyle(0x111827, 0x4c1d95, 0x312e81, 0x1e3a8a, 1);
-    bg.fillRect(0, 0, width, height);
-
-    this.add.circle(width * 0.84, height * 0.2, Math.min(width, height) * 0.17, 0x67e8f9, 0.08);
-    this.add.circle(width * 0.12, height * 0.78, Math.min(width, height) * 0.2, 0xf472b6, 0.07);
-
-    const shellW = width - 44;
-    const shellH = height - 34;
-    this.add.rectangle(width * 0.5 + 4, height * 0.5 + 6, shellW, shellH, 0x020617, 0.3);
-    this.add.rectangle(width * 0.5, height * 0.5, shellW, shellH, 0xf8fafc, 0.92).setStrokeStyle(2, 0xffffff, 0.75);
+    this.drawProjectionBackdrop({
+      panelColor: 0xf8fafc,
+      panelAlpha: 0.94,
+      borderColor: 0xd8b4fe
+    });
   }
 
   private drawHeader(): void {
@@ -362,7 +356,7 @@ export class DressUpScene extends Phaser.Scene {
         title: "Trabalhador pronto",
         message: "Todos os EPIs corretos foram equipados.",
         tone: "complete",
-        confirmLabel: "Concluir",
+        confirmLabel: "Voltar",
         onConfirm: () => this.returnToMap()
       });
     }
@@ -403,20 +397,6 @@ export class DressUpScene extends Phaser.Scene {
     const totalCorrect = epiItems.filter((item) => item.isCorrect).length;
     const equippedCorrect = this.items.filter((item) => item.equipped && item.data.isCorrect).length;
     this.equippedText.setText(`${equippedCorrect} / ${totalCorrect} EPIs`);
-  }
-
-  private returnToMap(): void {
-    if (this.returningToMap) return;
-
-    this.returningToMap = true;
-    this.modalOpen = false;
-    this.input.enabled = false;
-    this.tweens.killAll();
-
-    this.registry.set(REGISTRY_KEYS.returnToMap, true);
-    this.game.scene.stop(SCENE_KEYS.home);
-    this.game.scene.start(SCENE_KEYS.home);
-    this.game.scene.stop(SCENE_KEYS.dressUp);
   }
 
   private openModal(args: {

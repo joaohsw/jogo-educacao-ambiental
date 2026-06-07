@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 
 import { GameAudio } from "../audio/GameAudio";
-import { MENU_BACKGROUND, REGISTRY_KEYS, SCENE_KEYS } from "../constants";
+import { MENU_BACKGROUND, SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
 import { createButton, type GameButton } from "../ui/Button";
 
@@ -15,12 +15,6 @@ export class HomeScene extends Phaser.Scene {
   }
 
   create(): void {
-    if (this.registry.get(REGISTRY_KEYS.returnToMap)) {
-      this.registry.remove(REGISTRY_KEYS.returnToMap);
-      this.scene.start(SCENE_KEYS.map);
-      return;
-    }
-
     this.audio = new GameAudio(this);
     this.renderMenu();
     this.setupKeyboard();
