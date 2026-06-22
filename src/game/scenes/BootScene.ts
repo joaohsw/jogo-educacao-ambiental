@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 
-import { MAP_STATION_ASSETS, MENU_BACKGROUND, PLAYER_SPRITE_SHEET, SCENE_KEYS } from "../constants";
+import { INTRO_BACKGROUND, MAP_BACKGROUND, MAP_STATION_ASSETS, MENU_BACKGROUND, PLAYER_SPRITE_SHEET, SCENE_KEYS } from "../constants";
 
 export class BootScene extends Phaser.Scene {
   constructor() {
@@ -68,6 +68,8 @@ export class BootScene extends Phaser.Scene {
     this.load.image("bg-lavoura", "/images/cena1.png");
     this.load.image("bg-deposito", "/images/cena2.png");
     this.load.image(MENU_BACKGROUND.key, MENU_BACKGROUND.path);
+    this.load.image(INTRO_BACKGROUND.key, INTRO_BACKGROUND.path);
+    this.load.image(MAP_BACKGROUND.key, MAP_BACKGROUND.path);
     Object.values(MAP_STATION_ASSETS).forEach((asset) => {
       this.load.image(asset.key, asset.path);
     });

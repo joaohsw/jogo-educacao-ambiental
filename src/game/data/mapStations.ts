@@ -25,8 +25,8 @@ export const mapStations: MapStation[] = [
   {
     id: "lavoura",
     label: "Lavoura",
-    x: 320,
-    y: 240,
+    x: 345,
+    y: 260,
     width: 180,
     height: 160,
     color: 0x166534,
@@ -49,7 +49,7 @@ export const mapStations: MapStation[] = [
   {
     id: "deposito",
     label: "Depósito",
-    x: 1650,
+    x: 1655,
     y: 260,
     width: 150,
     height: 140,
@@ -73,8 +73,8 @@ export const mapStations: MapStation[] = [
   {
     id: "embalagem",
     label: "Descarte",
-    x: 340,
-    y: 900,
+    x: 990,
+    y: 965,
     width: 215,
     height: 120,
     color: 0x1e3a8a,
@@ -91,8 +91,8 @@ export const mapStations: MapStation[] = [
   {
     id: "epi",
     label: "Galpão EPIs",
-    x: 1620,
-    y: 880,
+    x: 300,
+    y: 1605,
     width: 185,
     height: 135,
     color: 0x581c87,
@@ -109,8 +109,8 @@ export const mapStations: MapStation[] = [
   {
     id: "ranking",
     label: "Ranking",
-    x: 1000,
-    y: 1020,
+    x: 1665,
+    y: 1600,
     width: 130,
     height: 100,
     color: 0x92400e,

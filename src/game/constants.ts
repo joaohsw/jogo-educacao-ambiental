@@ -8,11 +8,21 @@ export const MENU_BACKGROUND = {
   path: "/images/menu-principal.png"
 } as const;
 
+export const INTRO_BACKGROUND = {
+  key: "intro-historia",
+  path: "/images/intro-historia.png"
+} as const;
+
 export const MAP_STATION_ASSETS = {
   lavoura: { key: "station-lavoura", path: "/images/lavoura.png" },
   deposito: { key: "station-deposito", path: "/images/deposito.png" },
   descarte: { key: "station-descarte", path: "/images/descarte.png" },
   galpaoEpis: { key: "station-galpao-epis", path: "/images/galpaoepis.png" }
+} as const;
+
+export const MAP_BACKGROUND = {
+  key: "mapa-principal",
+  path: "/images/mapa-principal.png"
 } as const;
 
 export const STORAGE_KEYS = {
@@ -23,6 +33,8 @@ export const STORAGE_KEYS = {
 export const SCENE_KEYS = {
   boot: "boot-scene",
   home: "home-scene",
+  intro: "intro-scene",
+  controls: "controls-scene",
   map: "map-scene",
   spotError: "spot-error-scene",
   packaging: "packaging-scene",
@@ -32,7 +44,7 @@ export const SCENE_KEYS = {
 
 /* -------- Map constants -------- */
 export const MAP_WIDTH = 2000;
-export const MAP_HEIGHT = 1200;
+export const MAP_HEIGHT = 2000;
 export const PLAYER_SPEED = 220;
 export const PLAYER_RADIUS = 14;
 export const PLAYER_SPRITE_SHEET = {

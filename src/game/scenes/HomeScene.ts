@@ -86,7 +86,7 @@ export class HomeScene extends Phaser.Scene {
       gameStore.resetCurrentSession();
       this.registry.remove("playerX");
       this.registry.remove("playerY");
-      this.scene.start(SCENE_KEYS.map);
+      this.scene.start(SCENE_KEYS.intro);
     }, {
       width: buttonWidth,
       height: buttonHeight,

@@ -274,7 +274,7 @@ export class DressUpScene extends MiniGameScene {
     const card = this.add.container(x, y, [shadow, bg, label]);
     card.setSize(width, height);
     card.setInteractive(
-      new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
+      new Phaser.Geom.Rectangle(0, 0, width, height),
       Phaser.Geom.Rectangle.Contains
     );
     card.input!.cursor = "grab";

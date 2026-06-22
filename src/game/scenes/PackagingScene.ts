@@ -245,7 +245,7 @@ export class PackagingScene extends MiniGameScene {
     const container = this.add.container(x, y, [shadow, bg, label]);
     container.setSize(width, height);
     container.setInteractive(
-      new Phaser.Geom.Rectangle(-width / 2, -height / 2, width, height),
+      new Phaser.Geom.Rectangle(0, 0, width, height),
       Phaser.Geom.Rectangle.Contains
     );
     container.input!.cursor = "grab";

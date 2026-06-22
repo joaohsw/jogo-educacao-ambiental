@@ -3,6 +3,7 @@ import Phaser from "phaser";
 import { GameAudio } from "../audio/GameAudio";
 import {
   INTERACTION_RADIUS,
+  MAP_BACKGROUND,
   MAP_HEIGHT,
   MAP_WIDTH,
   PLAYER_RADIUS,
@@ -42,6 +43,8 @@ const PLAYER_IDLE_FRAMES: Record<PlayerDirection, number> = {
   right: 6,
   up: 9
 };
+
+const MAP_BACKGROUND_OVERSCAN = 12;
 
 export class MapScene extends Phaser.Scene {
   /* ---- core objects ---- */
@@ -86,7 +89,6 @@ export class MapScene extends Phaser.Scene {
     this.activeStation = null;
 
     this.drawTerrain();
-    this.drawDecorations();
     this.buildStations();
     this.createPlayerAnimations();
     this.createPlayer();
@@ -113,75 +115,21 @@ export class MapScene extends Phaser.Scene {
   /*  TERRAIN                                                         */
   /* ================================================================ */
   private drawTerrain(): void {
-    const g = this.add.graphics();
-
-    // Base grass
-    g.fillStyle(0x4ade80, 1);
-    g.fillRect(0, 0, MAP_WIDTH, MAP_HEIGHT);
-
-    // Grass variation patches
-    g.fillStyle(0x22c55e, 0.5);
-    for (let i = 0; i < 40; i++) {
-      const px = Phaser.Math.Between(0, MAP_WIDTH);
-      const py = Phaser.Math.Between(0, MAP_HEIGHT);
-      g.fillCircle(px, py, Phaser.Math.Between(30, 90));
-    }
-
-    g.fillStyle(0x86efac, 0.35);
-    for (let i = 0; i < 30; i++) {
-      const px = Phaser.Math.Between(0, MAP_WIDTH);
-      const py = Phaser.Math.Between(0, MAP_HEIGHT);
-      g.fillCircle(px, py, Phaser.Math.Between(20, 60));
-    }
-
-    // Dirt paths connecting stations
-    g.fillStyle(0xd4a574, 1);
-    const pathW = 40;
-
-    // Horizontal path middle
-    g.fillRect(200, MAP_HEIGHT * 0.5 - pathW / 2, MAP_WIDTH - 400, pathW);
-    // Vertical path middle
-    g.fillRect(MAP_WIDTH * 0.5 - pathW / 2, 150, pathW, MAP_HEIGHT - 300);
-
-    // Cross paths to stations
-    g.fillRect(200, 280, MAP_WIDTH - 400, pathW * 0.7);      // top horizontal
-    g.fillRect(200, 920, MAP_WIDTH - 400, pathW * 0.7);      // bottom horizontal
-    g.fillRect(340, 150, pathW * 0.7, MAP_HEIGHT - 300);     // left vertical
-    g.fillRect(1660, 150, pathW * 0.7, MAP_HEIGHT - 300);    // right vertical
-
-    // Path texture (subtle darker spots)
-    g.fillStyle(0xc19660, 0.4);
-    for (let i = 0; i < 80; i++) {
-      const px = Phaser.Math.Between(200, MAP_WIDTH - 200);
-      const py = Phaser.Math.Between(150, MAP_HEIGHT - 150);
-      g.fillCircle(px, py, Phaser.Math.Between(3, 8));
-    }
-
-    // Border fence
-    const fenceColor = 0x78350f;
-    const fenceW = 12;
-    g.fillStyle(fenceColor, 0.9);
-    g.fillRect(0, 0, MAP_WIDTH, fenceW);                    // top
-    g.fillRect(0, MAP_HEIGHT - fenceW, MAP_WIDTH, fenceW);  // bottom
-    g.fillRect(0, 0, fenceW, MAP_HEIGHT);                    // left
-    g.fillRect(MAP_WIDTH - fenceW, 0, fenceW, MAP_HEIGHT);  // right
-
-    // Fence posts
-    g.fillStyle(0x451a03, 1);
-    for (let x = 0; x < MAP_WIDTH; x += 80) {
-      g.fillRect(x, 0, 6, fenceW + 4);
-      g.fillRect(x, MAP_HEIGHT - fenceW - 4, 6, fenceW + 4);
-    }
-    for (let y = 0; y < MAP_HEIGHT; y += 80) {
-      g.fillRect(0, y, fenceW + 4, 6);
-      g.fillRect(MAP_WIDTH - fenceW - 4, y, fenceW + 4, 6);
-    }
+    const background = this.add
+      .image(MAP_WIDTH * 0.5, MAP_HEIGHT * 0.5, MAP_BACKGROUND.key)
+      .setOrigin(0.5)
+      .setDepth(0);
+    background.setDisplaySize(
+      MAP_WIDTH + MAP_BACKGROUND_OVERSCAN * 2,
+      MAP_HEIGHT + MAP_BACKGROUND_OVERSCAN * 2
+    );
 
     // Add border colliders
-    this.colliders.push(new Phaser.Geom.Rectangle(0, 0, MAP_WIDTH, fenceW + 4));         // top
-    this.colliders.push(new Phaser.Geom.Rectangle(0, MAP_HEIGHT - fenceW - 4, MAP_WIDTH, fenceW + 4)); // bottom
-    this.colliders.push(new Phaser.Geom.Rectangle(0, 0, fenceW + 4, MAP_HEIGHT));        // left
-    this.colliders.push(new Phaser.Geom.Rectangle(MAP_WIDTH - fenceW - 4, 0, fenceW + 4, MAP_HEIGHT)); // right
+    const borderW = 28;
+    this.colliders.push(new Phaser.Geom.Rectangle(0, 0, MAP_WIDTH, borderW));
+    this.colliders.push(new Phaser.Geom.Rectangle(0, MAP_HEIGHT - borderW, MAP_WIDTH, borderW));
+    this.colliders.push(new Phaser.Geom.Rectangle(0, 0, borderW, MAP_HEIGHT));
+    this.colliders.push(new Phaser.Geom.Rectangle(MAP_WIDTH - borderW, 0, borderW, MAP_HEIGHT));
   }
 
   /* ================================================================ */
@@ -405,7 +353,7 @@ export class MapScene extends Phaser.Scene {
     const savedX = this.registry.get("playerX") as number | undefined;
     const savedY = this.registry.get("playerY") as number | undefined;
     const startX = savedX ?? MAP_WIDTH / 2;
-    const startY = savedY ?? MAP_HEIGHT / 2;
+    const startY = savedY ?? MAP_HEIGHT * 0.68;
 
     const shadowOuter = this.add.ellipse(0, PLAYER_RADIUS + 10, 70, 22, 0x0f172a, 0.14);
     const shadowInner = this.add.ellipse(0, PLAYER_RADIUS + 9, 54, 14, 0x0f172a, 0.22);
