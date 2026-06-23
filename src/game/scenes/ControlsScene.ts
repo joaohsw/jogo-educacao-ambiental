@@ -5,10 +5,10 @@ import { INTRO_BACKGROUND, SCENE_KEYS } from "../constants";
 import { createButton, type GameButton } from "../ui/Button";
 
 const CONTROL_LINES = [
-  "WASD ou setas: mover o personagem pelo mapa.",
-  "E, Enter ou Espaço: entrar em uma estação quando o aviso aparecer.",
-  "Mouse: clicar, arrastar cartas e posicionar itens nos minigames.",
-  "Esc ou Voltar: sair de um minigame e retornar ao mapa."
+  "Mover: WASD ou setas.",
+  "Entrar: E, Enter ou Espaço quando o aviso aparecer.",
+  "Mouse: clicar e arrastar nos minigames.",
+  "Esc: pausar no mapa. Esc ou Voltar sai dos minigames."
 ];
 
 export class ControlsScene extends Phaser.Scene {
@@ -64,46 +64,52 @@ export class ControlsScene extends Phaser.Scene {
     const textX = board.x + insetX;
     let textY = board.y + insetY;
     const textWidth = board.width - insetX * 2;
+    const titleFontSize = Math.floor(38 * uiScale);
+    const bodyFontSize = Math.floor(23 * uiScale);
+    const highlightFontSize = Math.floor(21 * uiScale);
+    const paragraphGap = Math.max(14, Math.floor(18 * uiScale));
+    const titleGap = Math.max(22, Math.floor(28 * uiScale));
 
-    this.add
+    const title = this.add
       .text(textX, textY, "Comandos", {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(44 * uiScale)}px`,
+        fontSize: `${titleFontSize}px`,
         color: "#5f330b",
         fontStyle: "700"
       })
       .setOrigin(0);
 
-    textY += 74 * uiScale;
+    textY += title.height + titleGap;
 
     CONTROL_LINES.forEach((line) => {
-      this.add
+      const lineText = this.add
         .text(textX, textY, line, {
           fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-          fontSize: `${Math.floor(28 * uiScale)}px`,
+          fontSize: `${bodyFontSize}px`,
           color: "#3f2a12",
-          lineSpacing: Math.floor(8 * uiScale),
+          lineSpacing: Math.floor(7 * uiScale),
           wordWrap: { width: textWidth }
         })
         .setOrigin(0);
 
-      textY += 58 * uiScale;
+      textY += lineText.height + paragraphGap;
     });
 
-    this.add
-      .text(textX, textY + 12 * uiScale, "Explore com calma. Cada estação guarda uma parte da missão.", {
+    const highlight = this.add
+      .text(textX, textY + Math.floor(6 * uiScale), "Explore com calma. Cada estação guarda uma parte da missão.", {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(25 * uiScale)}px`,
+        fontSize: `${highlightFontSize}px`,
         color: "#6b3f14",
         fontStyle: "700",
         wordWrap: { width: textWidth }
       })
       .setOrigin(0);
+    textY = highlight.y + highlight.height;
 
     this.startButton = createButton(
       this,
       board.centerX,
-      Math.min(board.bottom - 54 * uiScale, height - 52 * uiScale),
+      Math.max(textY + 42 * uiScale, Math.min(board.bottom - 54 * uiScale, height - 52 * uiScale)),
       "Começar",
       () => this.startMap(),
       {

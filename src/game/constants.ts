@@ -13,11 +13,30 @@ export const INTRO_BACKGROUND = {
   path: "/images/intro-historia.png"
 } as const;
 
+export const ENDING_BACKGROUND = {
+  key: "final-historia",
+  path: "/images/final-historia.png"
+} as const;
+
 export const MAP_STATION_ASSETS = {
   lavoura: { key: "station-lavoura", path: "/images/lavoura.png" },
   deposito: { key: "station-deposito", path: "/images/deposito.png" },
   descarte: { key: "station-descarte", path: "/images/descarte.png" },
   galpaoEpis: { key: "station-galpao-epis", path: "/images/galpaoepis.png" }
+} as const;
+
+export const DRESS_UP_ASSETS = {
+  personagemBase: { key: "dressup-personagem-base", path: "/images/dressup/personagem-base.png" },
+  boneArabe: { key: "dressup-bone-arabe", path: "/images/dressup/bone-arabe.png" },
+  oculos: { key: "dressup-oculos", path: "/images/dressup/oculos.png" },
+  respirador: { key: "dressup-respirador", path: "/images/dressup/respirador.png" },
+  luvasVerdes: { key: "dressup-luvas-verdes", path: "/images/dressup/luvas-verdes.png" },
+  avental: { key: "dressup-avental", path: "/images/dressup/avental.png" },
+  botas: { key: "dressup-botas", path: "/images/dressup/botas.png" },
+  camiseta: { key: "dressup-camiseta", path: "/images/dressup/camiseta.png" },
+  chinelo: { key: "dressup-chinelo", path: "/images/dressup/chinelo.png" },
+  mascaraCirurgica: { key: "dressup-mascara-cirurgica", path: "/images/dressup/mascara-cirurgica.png" },
+  luvasLatex: { key: "dressup-luvas-latex", path: "/images/dressup/luvas-latex.png" }
 } as const;
 
 export const MAP_BACKGROUND = {
@@ -36,6 +55,8 @@ export const SCENE_KEYS = {
   intro: "intro-scene",
   controls: "controls-scene",
   map: "map-scene",
+  pause: "pause-scene",
+  ending: "ending-scene",
   spotError: "spot-error-scene",
   packaging: "packaging-scene",
   dressUp: "dress-up-scene",

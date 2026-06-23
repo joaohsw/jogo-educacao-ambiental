@@ -249,6 +249,7 @@ export class SpotErrorScene extends MiniGameScene {
   private showCompletion(): void {
     this.completionShown = true;
     this.audio.play("complete");
+    gameStore.markMiniGameCompleted(this.configData.miniGameId);
     this.openModal({
       title: "Cena concluida",
       message: `Voce encontrou todos os ${this.hotspots.length} erros.`,

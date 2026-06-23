@@ -61,6 +61,7 @@ export class MapScene extends Phaser.Scene {
   private keyE!: Phaser.Input.Keyboard.Key;
   private keyEnter!: Phaser.Input.Keyboard.Key;
   private keySpace!: Phaser.Input.Keyboard.Key;
+  private keyEsc!: Phaser.Input.Keyboard.Key;
 
   /* ---- stations ---- */
   private stations: StationRuntime[] = [];
@@ -109,6 +110,7 @@ export class MapScene extends Phaser.Scene {
   update(_time: number, delta: number): void {
     this.handleMovement(delta);
     this.checkProximity();
+    this.maybeShowEnding();
   }
 
   /* ================================================================ */
@@ -297,8 +299,7 @@ export class MapScene extends Phaser.Scene {
     this.stations.forEach((station) => {
       if (!station.data.miniGameId) return;
 
-      const score = gameStore.getScores()[station.data.miniGameId];
-      const isCompleted = score > 0;
+      const isCompleted = gameStore.isMiniGameCompleted(station.data.miniGameId);
 
       if (isCompleted && !station.checkMark) {
         station.checkMark = this.add
@@ -388,11 +389,36 @@ export class MapScene extends Phaser.Scene {
     this.keyE = kb.addKey(Phaser.Input.Keyboard.KeyCodes.E);
     this.keyEnter = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ENTER);
     this.keySpace = kb.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    this.keyEsc = kb.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
     // Interaction keys
     this.keyE.on("down", () => this.tryInteract());
     this.keyEnter.on("down", () => this.tryInteract());
     this.keySpace.on("down", () => this.tryInteract());
+    this.keyEsc.on("down", () => this.pauseGame());
+  }
+
+  private pauseGame(): void {
+    if (this.scene.isActive(SCENE_KEYS.pause)) return;
+
+    this.stopPlayerAnimation();
+    this.audio.play("click");
+    this.scene.launch(SCENE_KEYS.pause);
+    this.scene.bringToTop(SCENE_KEYS.pause);
+    this.scene.pause();
+  }
+
+  private maybeShowEnding(): void {
+    if (this.registry.get("endingSeen") === true) return;
+    if (!gameStore.hasCompletedAllMiniGames()) return;
+    if (this.scene.isActive(SCENE_KEYS.ending)) return;
+
+    this.registry.set("endingSeen", true);
+    this.stopPlayerAnimation();
+    this.audio.play("complete");
+    this.scene.launch(SCENE_KEYS.ending);
+    this.scene.bringToTop(SCENE_KEYS.ending);
+    this.scene.pause();
   }
 
   /* ================================================================ */

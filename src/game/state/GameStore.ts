@@ -18,6 +18,7 @@ class GameStore {
     jornada_embalagem: new Set<string>(),
     vista_se: new Set<string>()
   };
+  private readonly completedMiniGames = new Set<MiniGameId>();
 
   private leaderboard: ScoreEntry[] = [];
   private playerName = "Jogador";
@@ -78,11 +79,29 @@ class GameStore {
     return this.scoredActions[miniGameId].has(actionId);
   }
 
+  markMiniGameCompleted(miniGameId: MiniGameId): void {
+    if (this.completedMiniGames.has(miniGameId)) {
+      return;
+    }
+
+    this.completedMiniGames.add(miniGameId);
+    this.emitUpdate();
+  }
+
+  isMiniGameCompleted(miniGameId: MiniGameId): boolean {
+    return this.completedMiniGames.has(miniGameId);
+  }
+
+  hasCompletedAllMiniGames(): boolean {
+    return MINI_GAME_IDS.every((id) => this.completedMiniGames.has(id));
+  }
+
   resetCurrentSession(): void {
     MINI_GAME_IDS.forEach((id) => {
       this.scores[id] = 0;
       this.scoredActions[id].clear();
     });
+    this.completedMiniGames.clear();
 
     this.emitUpdate();
   }

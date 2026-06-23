@@ -320,6 +320,7 @@ export class PackagingScene extends MiniGameScene {
 
     if (this.slots.every((item) => item.occupied)) {
       this.audio.play("complete");
+      gameStore.markMiniGameCompleted("jornada_embalagem");
       this.openModal({
         title: "Sequencia completa",
         message: "Voce concluiu a Jornada da Embalagem com sucesso.",

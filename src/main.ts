@@ -5,9 +5,11 @@ import { GAME_HEIGHT, GAME_WIDTH, SCENE_KEYS } from "./game/constants";
 import { BootScene } from "./game/scenes/BootScene";
 import { ControlsScene } from "./game/scenes/ControlsScene";
 import { DressUpScene } from "./game/scenes/DressUpScene";
+import { EndingScene } from "./game/scenes/EndingScene";
 import { HomeScene } from "./game/scenes/HomeScene";
 import { IntroScene } from "./game/scenes/IntroScene";
 import { MapScene } from "./game/scenes/MapScene";
+import { PauseScene } from "./game/scenes/PauseScene";
 import { PackagingScene } from "./game/scenes/PackagingScene";
 import { RankingScene } from "./game/scenes/RankingScene";
 import { SpotErrorScene } from "./game/scenes/SpotErrorScene";
@@ -36,6 +38,8 @@ const config: Phaser.Types.Core.GameConfig = {
     IntroScene,
     ControlsScene,
     MapScene,
+    PauseScene,
+    EndingScene,
     SpotErrorScene,
     PackagingScene,
     DressUpScene,
