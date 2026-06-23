@@ -1,6 +1,6 @@
 {
   "compressionlevel": -1,
-  "height": 600,
+  "height": 941,
   "infinite": false,
   "layers": [
     {
@@ -9,76 +9,76 @@
       "name": "hotspots",
       "objects": [
         {
-          "height": 144,
+          "height": 160,
           "id": 1,
-          "name": "veneno_junto_alimentos",
+          "name": "produtos_quimicos_no_chao",
           "properties": [
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Correto! Agrotoxicos nunca devem ficar junto com alimentos."
+              "value": "Correto! Produtos quimicos nao devem ficar soltos no chao; precisam estar fechados, identificados e em local seguro."
             }
           ],
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 380,
-          "x": 240,
-          "y": 198
+          "width": 185,
+          "x": 0,
+          "y": 570
         },
         {
-          "height": 150,
+          "height": 255,
           "id": 2,
+          "name": "pulverizador_no_deposito",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Muito bem! O pulverizador precisa ser higienizado e guardado corretamente, longe de circulacao e de materiais comuns."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 330,
+          "x": 125,
+          "y": 385
+        },
+        {
+          "height": 125,
+          "id": 3,
+          "name": "caixa_aberta_no_chao",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Correto! Caixas e embalagens abertas no chao deixam o deposito desorganizado e podem causar acidentes ou contaminacao."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 210,
+          "x": 1028,
+          "y": 598
+        },
+        {
+          "height": 190,
+          "id": 4,
           "name": "animais_no_deposito",
           "properties": [
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Muito bem! Animais nao podem entrar no deposito."
+              "value": "Muito bem! Animais nao podem entrar no deposito, pois podem se contaminar e espalhar residuos."
             }
           ],
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 230,
-          "x": 750,
-          "y": 438
-        },
-        {
-          "height": 162,
-          "id": 3,
-          "name": "embalagens_no_chao",
-          "properties": [
-            {
-              "name": "successMessage",
-              "type": "string",
-              "value": "Correto! Embalagens precisam ficar fechadas e organizadas."
-            }
-          ],
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 280,
-          "x": 460,
-          "y": 414
-        },
-        {
-          "height": 216,
-          "id": 4,
-          "name": "equipamento_no_deposito",
-          "properties": [
-            {
-              "name": "successMessage",
-              "type": "string",
-              "value": "Muito bem! Equipamentos de aplicacao nao devem ser guardados no deposito."
-            }
-          ],
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 230,
-          "x": 650,
-          "y": 204
+          "width": 420,
+          "x": 1135,
+          "y": 700
         }
       ],
       "opacity": 1,
@@ -98,5 +98,5 @@
   "tilewidth": 1,
   "type": "map",
   "version": "1.10",
-  "width": 1000
+  "width": 1672
 }

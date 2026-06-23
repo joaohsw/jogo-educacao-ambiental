@@ -1,6 +1,6 @@
 {
   "compressionlevel": -1,
-  "height": 600,
+  "height": 941,
   "infinite": false,
   "layers": [
     {
@@ -9,94 +9,94 @@
       "name": "hotspots",
       "objects": [
         {
-          "height": 180,
+          "height": 245,
           "id": 1,
-          "name": "armazenamento_incorreto",
+          "name": "alimentacao_area",
           "properties": [
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Correto! Agrotoxicos devem ser guardados em local adequado e sem vazamentos."
+              "value": "Correto! Nao se deve comer nem beber perto da area de aplicacao de agrotoxicos."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 270,
+          "x": 118,
+          "y": 420
+        },
+        {
+          "height": 145,
+          "id": 2,
+          "name": "embalagens_no_campo",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Muito bem! Embalagens e produtos nao devem ficar largados no campo; precisam de armazenamento e descarte corretos."
             }
           ],
           "rotation": 0,
           "type": "",
           "visible": true,
           "width": 230,
-          "x": 180,
-          "y": 204
+          "x": 405,
+          "y": 520
         },
         {
-          "height": 246,
-          "id": 2,
+          "height": 385,
+          "id": 3,
+          "name": "epi_incompleto",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Correto! O aplicador deve usar EPI completo, incluindo luvas, botas, mascara e protecao adequada."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 235,
+          "x": 785,
+          "y": 315
+        },
+        {
+          "height": 350,
+          "id": 4,
           "name": "animais_proximos",
           "properties": [
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Muito bem! Animais precisam ficar longe da area de aplicacao de agrotoxicos."
+              "value": "Muito bem! Animais precisam ficar longe da area de aplicacao para evitar contaminacao."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 455,
+          "x": 1190,
+          "y": 265
+        },
+        {
+          "height": 160,
+          "id": 5,
+          "name": "pulverizacao_perto_animais",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Correto! A pulverizacao deve respeitar distancia segura de pessoas, animais, cercas e areas sensiveis."
             }
           ],
           "rotation": 0,
           "type": "",
           "visible": true,
           "width": 290,
-          "x": 710,
-          "y": 174
-        },
-        {
-          "height": 216,
-          "id": 3,
-          "name": "alimentacao_area",
-          "properties": [
-            {
-              "name": "successMessage",
-              "type": "string",
-              "value": "Correto! Nao se deve comer nem beber na area de aplicacao."
-            }
-          ],
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 150,
-          "x": 80,
-          "y": 228
-        },
-        {
-          "height": 156,
-          "id": 4,
-          "name": "descarte_incorreto",
-          "properties": [
-            {
-              "name": "successMessage",
-              "type": "string",
-              "value": "Muito bem! Embalagens devem passar por triplice lavagem e devolucao correta."
-            }
-          ],
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 350,
-          "x": 210,
-          "y": 426
-        },
-        {
-          "height": 342,
-          "id": 5,
-          "name": "epi_incompleto",
-          "properties": [
-            {
-              "name": "successMessage",
-              "type": "string",
-              "value": "Correto! O aplicador deve usar EPI completo durante toda a atividade."
-            }
-          ],
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 200,
-          "x": 470,
-          "y": 150
+          "x": 925,
+          "y": 540
         }
       ],
       "opacity": 1,
@@ -116,5 +116,5 @@
   "tilewidth": 1,
   "type": "map",
   "version": "1.10",
-  "width": 1000
+  "width": 1672
 }

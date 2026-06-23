@@ -31,6 +31,8 @@ export const DRESS_UP_ASSETS = {
   oculos: { key: "dressup-oculos", path: "/images/dressup/oculos.png" },
   respirador: { key: "dressup-respirador", path: "/images/dressup/respirador.png" },
   luvasVerdes: { key: "dressup-luvas-verdes", path: "/images/dressup/luvas-verdes.png" },
+  luvaVerdeEsquerda: { key: "dressup-luva-verde-esquerda", path: "/images/dressup/luva-verde-esquerda.png" },
+  luvaVerdeDireita: { key: "dressup-luva-verde-direita", path: "/images/dressup/luva-verde-direita.png" },
   avental: { key: "dressup-avental", path: "/images/dressup/avental.png" },
   botas: { key: "dressup-botas", path: "/images/dressup/botas.png" },
   camiseta: { key: "dressup-camiseta", path: "/images/dressup/camiseta.png" },

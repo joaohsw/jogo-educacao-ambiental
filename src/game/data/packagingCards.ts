@@ -47,5 +47,23 @@ export const packagingCards: PackagingCard[] = [
     label: "Descarte Irregular",
     isCorrect: false,
     correctOrder: -1
+  },
+  {
+    id: "reutilizar",
+    label: "Reutilizar Embalagem",
+    isCorrect: false,
+    correctOrder: -1
+  },
+  {
+    id: "lixo_comum",
+    label: "Jogar no Lixo Comum",
+    isCorrect: false,
+    correctOrder: -1
+  },
+  {
+    id: "lavar_rio",
+    label: "Lavar no Rio",
+    isCorrect: false,
+    correctOrder: -1
   }
 ];

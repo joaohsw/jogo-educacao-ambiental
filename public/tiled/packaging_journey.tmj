@@ -21,7 +21,7 @@
             {
               "name": "label",
               "type": "string",
-              "value": "1. Uso"
+              "value": "Etapa 1"
             }
           ],
           "rotation": 0,
@@ -44,7 +44,7 @@
             {
               "name": "label",
               "type": "string",
-              "value": "2. Lavagem"
+              "value": "Etapa 2"
             }
           ],
           "rotation": 0,
@@ -67,7 +67,7 @@
             {
               "name": "label",
               "type": "string",
-              "value": "3. Armazenar"
+              "value": "Etapa 3"
             }
           ],
           "rotation": 0,
@@ -90,7 +90,7 @@
             {
               "name": "label",
               "type": "string",
-              "value": "4. Devolver"
+              "value": "Etapa 4"
             }
           ],
           "rotation": 0,
@@ -113,7 +113,7 @@
             {
               "name": "label",
               "type": "string",
-              "value": "5. Recibo"
+              "value": "Etapa 5"
             }
           ],
           "rotation": 0,

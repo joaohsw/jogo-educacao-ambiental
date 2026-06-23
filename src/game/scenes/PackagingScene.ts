@@ -93,7 +93,7 @@ export class PackagingScene extends MiniGameScene {
     const { width, height } = this.cameras.main;
     const uiScale = Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.72, 1.35);
     this.add
-      .text(width * 0.5, height * 0.15, "Arraste cada carta para a posicao correta da sequencia.", {
+      .text(width * 0.5, height * 0.15, "Analise as cartas e monte a sequencia correta.", {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
         fontSize: `${Math.floor(28 * uiScale)}px`,
         color: "#111827",
@@ -166,12 +166,19 @@ export class PackagingScene extends MiniGameScene {
     const { width, height } = this.cameras.main;
     const uiScale = Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.72, 1.35);
 
-    const columns = width >= 1024 ? 4 : 3;
-    const cardWidth = Math.max(180, Math.floor(235 * uiScale));
-    const cardHeight = Math.max(68, Math.floor(92 * uiScale));
-    const spacingX = cardWidth + Math.max(10, Math.floor(14 * uiScale));
-    const spacingY = cardHeight + Math.max(10, Math.floor(14 * uiScale));
-    const startX = this.trayBounds.x + cardWidth * 0.5 + 20 * uiScale;
+    const columns = width >= 1080 ? 5 : width >= 760 ? 4 : 2;
+    const gapX = Math.max(8, Math.floor(12 * uiScale));
+    const gapY = Math.max(8, Math.floor(12 * uiScale));
+    const trayPadX = Math.max(14, Math.floor(18 * uiScale));
+    const cardWidth = Phaser.Math.Clamp(
+      Math.floor((this.trayBounds.width - trayPadX * 2 - gapX * (columns - 1)) / columns),
+      132,
+      Math.floor(198 * uiScale)
+    );
+    const cardHeight = Phaser.Math.Clamp(76 * uiScale, 56, 82);
+    const spacingX = cardWidth + gapX;
+    const spacingY = cardHeight + gapY;
+    const startX = this.trayBounds.x + trayPadX + cardWidth * 0.5;
     const startY = this.trayBounds.y + cardHeight * 0.5 + 12 * uiScale;
 
     shuffled.forEach((cardData, index) => {
@@ -220,9 +227,9 @@ export class PackagingScene extends MiniGameScene {
     height: number,
     uiScale: number
   ): Phaser.GameObjects.Container {
-    const bgColor = cardData.isCorrect ? 0xffffff : 0xfff7ed;
-    const borderColor = cardData.isCorrect ? 0x1d4ed8 : 0xea580c;
-    const textColor = cardData.isCorrect ? "#1e3a8a" : "#9a3412";
+    const bgColor = 0xffffff;
+    const borderColor = 0x1d4ed8;
+    const textColor = "#1e3a8a";
 
     const shadow = this.add.rectangle(0, 4, width, height, 0x020617, 0.22).setOrigin(0.5);
     const bg = this.add
@@ -232,7 +239,7 @@ export class PackagingScene extends MiniGameScene {
     const label = this.add
       .text(0, 0, cardData.label, {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(23 * uiScale)}px`,
+        fontSize: `${Math.floor(19 * uiScale)}px`,
         color: textColor,
         fontStyle: "700",
         align: "center",
@@ -261,33 +268,18 @@ export class PackagingScene extends MiniGameScene {
 
     if (slot.occupied) {
       this.audio.play("error");
-      this.openModal({
-        title: "Posicao ocupada",
-        message: "Esse espaco ja esta preenchido.",
-        tone: "error"
-      });
       this.snapCardHome(cardRuntime);
       return;
     }
 
     if (!cardRuntime.data.isCorrect) {
       this.audio.play("error");
-      this.openModal({
-        title: "Carta incorreta",
-        message: `"${cardRuntime.data.label}" nao faz parte da sequencia correta.`,
-        tone: "error"
-      });
       this.snapCardHome(cardRuntime);
       return;
     }
 
     if (cardRuntime.data.correctOrder !== slot.order) {
       this.audio.play("error");
-      this.openModal({
-        title: "Ordem incorreta",
-        message: `"${cardRuntime.data.label}" nao entra nessa posicao.`,
-        tone: "error"
-      });
       this.snapCardHome(cardRuntime);
       return;
     }
@@ -300,7 +292,7 @@ export class PackagingScene extends MiniGameScene {
     slot.occupied = true;
     slot.zone.setFillStyle(0xdcfce7, 1);
     slot.zone.setStrokeStyle(2, 0x16a34a, 1);
-    slot.text.setColor("#166534");
+    slot.text.setVisible(false);
     cardRuntime.container.disableInteractive();
 
     this.tweens.add({

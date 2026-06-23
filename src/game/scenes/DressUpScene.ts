@@ -40,45 +40,45 @@ interface ItemVisualConfig {
 
 const ITEM_VISUALS: Record<string, ItemVisualConfig> = {
   bone_arabe: {
-    trayWidth: 92,
-    equipWidthFactor: 0.46,
+    trayWidth: 86,
+    equipWidthFactor: 0.37,
     offsetXFactor: 0,
-    offsetYFactor: -0.83,
+    offsetYFactor: -0.84,
     depth: 28
   },
   oculos: {
-    trayWidth: 102,
-    equipWidthFactor: 0.34,
+    trayWidth: 92,
+    equipWidthFactor: 0.3,
     offsetXFactor: 0.01,
-    offsetYFactor: -0.67,
+    offsetYFactor: -0.745,
     depth: 30
   },
   respirador: {
-    trayWidth: 90,
-    equipWidthFactor: 0.29,
+    trayWidth: 86,
+    equipWidthFactor: 0.24,
     offsetXFactor: 0.01,
-    offsetYFactor: -0.58,
+    offsetYFactor: -0.68,
     depth: 31
   },
   luvas: {
-    trayWidth: 104,
-    equipWidthFactor: 0.38,
+    trayWidth: 92,
+    equipWidthFactor: 0.34,
     offsetXFactor: 0,
-    offsetYFactor: -0.285,
+    offsetYFactor: -0.345,
     depth: 27
   },
   avental: {
-    trayWidth: 100,
-    equipWidthFactor: 0.37,
+    trayWidth: 88,
+    equipWidthFactor: 0.28,
     offsetXFactor: 0,
-    offsetYFactor: -0.34,
+    offsetYFactor: -0.375,
     depth: 29
   },
   botas: {
-    trayWidth: 108,
-    equipWidthFactor: 0.31,
+    trayWidth: 92,
+    equipWidthFactor: 0.33,
     offsetXFactor: 0,
-    offsetYFactor: -0.045,
+    offsetYFactor: -0.088,
     depth: 26
   },
   mascara_cirurgica: {
@@ -214,11 +214,11 @@ export class DressUpScene extends MiniGameScene {
 
     this.add.ellipse(avatarX, avatarBottomY + 10 * uiScale, avatarHeight * 0.46, avatarHeight * 0.12, 0x0f172a, 0.18);
 
-    this.add
+    const avatarImage = this.add
       .image(avatarX, avatarBottomY, DRESS_UP_ASSETS.personagemBase.key)
       .setOrigin(0.5, 1)
-      .setDisplaySize(avatarHeight * (191 / 359), avatarHeight)
       .setDepth(20);
+    avatarImage.setDisplaySize(avatarHeight * (avatarImage.width / avatarImage.height), avatarHeight);
   }
 
   private createZones(): void {
@@ -352,15 +352,22 @@ export class DressUpScene extends MiniGameScene {
   private equipItem(itemRuntime: ItemRuntime, zone: ZoneRuntime): void {
     const visual = ITEM_VISUALS[itemRuntime.data.id];
     const layout = this.avatarLayout;
-    const targetX = layout.x + layout.height * (visual?.offsetXFactor ?? 0);
-    const targetY = layout.bottomY + layout.height * (visual?.offsetYFactor ?? 0);
-    const targetWidth = visual?.equipWidth ?? layout.height * (visual?.equipWidthFactor ?? 0.4);
-    const targetHeight = targetWidth * (itemRuntime.image.height / itemRuntime.image.width);
 
     itemRuntime.equipped = true;
     zone.occupied = true;
     itemRuntime.container.disableInteractive();
     itemRuntime.container.setVisible(false);
+
+    if (itemRuntime.data.id === "luvas") {
+      this.equipSplitGloves(itemRuntime, visual);
+      this.finishEquip(itemRuntime);
+      return;
+    }
+
+    const targetX = layout.x + layout.height * (visual?.offsetXFactor ?? 0);
+    const targetY = layout.bottomY + layout.height * (visual?.offsetYFactor ?? 0);
+    const targetWidth = visual?.equipWidth ?? layout.height * (visual?.equipWidthFactor ?? 0.4);
+    const targetHeight = targetWidth * (itemRuntime.image.height / itemRuntime.image.width);
 
     const equippedImage = this.add
       .image(itemRuntime.container.x, itemRuntime.container.y, itemRuntime.data.assetKey)
@@ -378,6 +385,65 @@ export class DressUpScene extends MiniGameScene {
       ease: "Quad.Out"
     });
 
+    this.finishEquip(itemRuntime);
+  }
+
+  private equipSplitGloves(itemRuntime: ItemRuntime, visual: ItemVisualConfig | undefined): void {
+    const layout = this.avatarLayout;
+    const targetY = layout.bottomY + layout.height * (visual?.offsetYFactor ?? -0.34);
+    const targetWidth = layout.height * 0.135;
+    const leftTargetX = layout.x - layout.height * 0.14;
+    const rightTargetX = layout.x + layout.height * 0.14;
+    const startXOffset = itemRuntime.image.displayWidth * 0.18;
+
+    this.createSplitGloveTween({
+      assetKey: DRESS_UP_ASSETS.luvaVerdeEsquerda.key,
+      startX: itemRuntime.container.x - startXOffset,
+      startY: itemRuntime.container.y,
+      targetX: leftTargetX,
+      targetY,
+      targetWidth,
+      depth: visual?.depth ?? 27
+    });
+
+    this.createSplitGloveTween({
+      assetKey: DRESS_UP_ASSETS.luvaVerdeDireita.key,
+      startX: itemRuntime.container.x + startXOffset,
+      startY: itemRuntime.container.y,
+      targetX: rightTargetX,
+      targetY,
+      targetWidth,
+      depth: visual?.depth ?? 27
+    });
+  }
+
+  private createSplitGloveTween(args: {
+    assetKey: string;
+    startX: number;
+    startY: number;
+    targetX: number;
+    targetY: number;
+    targetWidth: number;
+    depth: number;
+  }): void {
+    const image = this.add
+      .image(args.startX, args.startY, args.assetKey)
+      .setOrigin(0.5)
+      .setDepth(args.depth);
+    const targetHeight = args.targetWidth * (image.height / image.width);
+
+    this.tweens.add({
+      targets: image,
+      x: args.targetX,
+      y: args.targetY,
+      displayWidth: args.targetWidth,
+      displayHeight: targetHeight,
+      duration: 220,
+      ease: "Quad.Out"
+    });
+  }
+
+  private finishEquip(itemRuntime: ItemRuntime): void {
     this.audio.play("success");
     gameStore.addScoreForAction({
       miniGameId: "vista_se",
