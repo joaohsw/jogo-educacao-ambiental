@@ -56,40 +56,27 @@ export class IntroScene extends Phaser.Scene {
     );
 
     const board = this.mapImageRect(imageRect, 0.235, 0.205, 0.815, 0.735);
-    const insetX = Math.max(24, board.width * 0.07);
-    const insetY = Math.max(20, board.height * 0.08);
+    const insetX = Phaser.Math.Clamp(board.width * 0.07, 16, 42);
+    const insetY = Phaser.Math.Clamp(board.height * 0.075, 14, 34);
     const textX = board.x + insetX;
     const textY = board.y + insetY;
     const textWidth = board.width - insetX * 2;
+    const buttonHeight = Phaser.Math.Clamp(58 * uiScale, 42, 58);
+    const buttonWidth = Math.min(Math.floor(250 * uiScale), Math.floor(board.width * 0.68));
+    const buttonY = Math.min(board.bottom - insetY - buttonHeight * 0.5, height - buttonHeight * 0.5 - 12);
+    const textBottomLimit = buttonY - buttonHeight * 0.5 - Math.max(12, 18 * uiScale);
 
-    this.add
-      .text(textX, textY, STORY_TITLE, {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(42 * uiScale)}px`,
-        color: "#5f330b",
-        fontStyle: "700"
-      })
-      .setOrigin(0);
-
-    this.add
-      .text(textX, textY + 64 * uiScale, STORY_TEXT, {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(27 * uiScale)}px`,
-        color: "#3f2a12",
-        lineSpacing: Math.floor(9 * uiScale),
-        wordWrap: { width: textWidth }
-      })
-      .setOrigin(0);
+    this.drawFittedStoryText(textX, textY, textWidth, Math.max(80, textBottomLimit - textY), uiScale);
 
     this.continueButton = createButton(
       this,
       board.centerX,
-      Math.min(board.bottom - 54 * uiScale, height - 52 * uiScale),
+      buttonY,
       "Continuar",
       () => this.continueToMap(),
       {
-        width: Math.floor(250 * uiScale),
-        height: Math.floor(58 * uiScale),
+        width: Math.max(160, buttonWidth),
+        height: Math.floor(buttonHeight),
         backgroundColor: 0xfacc15,
         hoverBackgroundColor: 0xfbbf24,
         borderColor: 0x7c2d12,
@@ -99,6 +86,56 @@ export class IntroScene extends Phaser.Scene {
         depth: 10
       }
     );
+  }
+
+  private drawFittedStoryText(
+    x: number,
+    y: number,
+    width: number,
+    maxHeight: number,
+    uiScale: number
+  ): void {
+    let titleFontSize = Math.floor(42 * uiScale);
+    let bodyFontSize = Math.floor(27 * uiScale);
+    let lineSpacing = Math.floor(9 * uiScale);
+    let titleGap = Math.floor(20 * uiScale);
+    let title!: Phaser.GameObjects.Text;
+    let body!: Phaser.GameObjects.Text;
+
+    for (let attempt = 0; attempt < 34; attempt += 1) {
+      title?.destroy();
+      body?.destroy();
+
+      title = this.add
+        .text(x, y, STORY_TITLE, {
+          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+          fontSize: `${titleFontSize}px`,
+          color: "#5f330b",
+          fontStyle: "700",
+          wordWrap: { width }
+        })
+        .setOrigin(0);
+
+      body = this.add
+        .text(x, y + title.height + titleGap, STORY_TEXT, {
+          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+          fontSize: `${bodyFontSize}px`,
+          color: "#3f2a12",
+          lineSpacing,
+          wordWrap: { width }
+        })
+        .setOrigin(0);
+
+      const totalHeight = body.y + body.height - y;
+      if (totalHeight <= maxHeight || bodyFontSize <= 13) {
+        return;
+      }
+
+      titleFontSize = Math.max(22, titleFontSize - 2);
+      bodyFontSize = Math.max(13, bodyFontSize - 1);
+      lineSpacing = Math.max(2, lineSpacing - 1);
+      titleGap = Math.max(8, titleGap - 1);
+    }
   }
 
   private mapImageRect(

@@ -114,7 +114,7 @@ export class SpotErrorScene extends MiniGameScene {
     const map = this.make.tilemap({ key: this.configData.mapKey });
     const objectLayer = map.getObjectLayer("hotspots");
     if (!objectLayer) {
-      throw new Error(`Camada hotspots nao encontrada em ${this.configData.mapKey}`);
+      throw new Error(`Camada hotspots não encontrada em ${this.configData.mapKey}`);
     }
 
     const image = this.add
@@ -144,14 +144,14 @@ export class SpotErrorScene extends MiniGameScene {
       this.audio.play("error");
       this.openModal({
         title: "Ops!",
-        message: "Esse ponto nao representa um erro. Continue investigando.",
+        message: "Esse ponto não representa um erro. Continue investigando.",
         tone: "error"
       });
     });
 
     this.hotspots = objectLayer.objects.map((object) => {
       const id = object.name ?? `hotspot_${object.id}`;
-      const message = this.getStringProperty(object, "successMessage", "Muito bem, voce encontrou um erro.");
+      const message = this.getStringProperty(object, "successMessage", "Muito bem, você encontrou um erro.");
       const mapped = this.mapToImageBounds(
         imageBounds,
         map.width,
@@ -251,8 +251,8 @@ export class SpotErrorScene extends MiniGameScene {
     this.audio.play("complete");
     gameStore.markMiniGameCompleted(this.configData.miniGameId);
     this.openModal({
-      title: "Cena concluida",
-      message: `Voce encontrou todos os ${this.hotspots.length} erros.`,
+      title: "Cena concluída",
+      message: `Você encontrou todos os ${this.hotspots.length} erros.`,
       tone: "complete",
       confirmLabel: "Voltar",
       onConfirm: () => this.returnToMap()

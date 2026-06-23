@@ -14,7 +14,7 @@ export const packagingCards: PackagingCard[] = [
   },
   {
     id: "triplice",
-    label: "Triplice Lavagem",
+    label: "Tríplice Lavagem",
     isCorrect: true,
     correctOrder: 1
   },
@@ -26,13 +26,13 @@ export const packagingCards: PackagingCard[] = [
   },
   {
     id: "devolucao",
-    label: "Devolucao",
+    label: "Devolução",
     isCorrect: true,
     correctOrder: 3
   },
   {
     id: "recibo",
-    label: "Recibo de Devolucao",
+    label: "Recibo de Devolução",
     isCorrect: true,
     correctOrder: 4
   },

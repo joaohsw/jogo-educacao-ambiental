@@ -59,62 +59,27 @@ export class ControlsScene extends Phaser.Scene {
     );
 
     const board = this.mapImageRect(imageRect, 0.235, 0.205, 0.815, 0.735);
-    const insetX = Math.max(24, board.width * 0.07);
-    const insetY = Math.max(20, board.height * 0.08);
+    const insetX = Phaser.Math.Clamp(board.width * 0.07, 16, 42);
+    const insetY = Phaser.Math.Clamp(board.height * 0.075, 14, 34);
     const textX = board.x + insetX;
-    let textY = board.y + insetY;
+    const textY = board.y + insetY;
     const textWidth = board.width - insetX * 2;
-    const titleFontSize = Math.floor(38 * uiScale);
-    const bodyFontSize = Math.floor(23 * uiScale);
-    const highlightFontSize = Math.floor(21 * uiScale);
-    const paragraphGap = Math.max(14, Math.floor(18 * uiScale));
-    const titleGap = Math.max(22, Math.floor(28 * uiScale));
+    const buttonHeight = Phaser.Math.Clamp(58 * uiScale, 42, 58);
+    const buttonWidth = Math.min(Math.floor(250 * uiScale), Math.floor(board.width * 0.68));
+    const buttonY = Math.min(board.bottom - insetY - buttonHeight * 0.5, height - buttonHeight * 0.5 - 12);
+    const textBottomLimit = buttonY - buttonHeight * 0.5 - Math.max(12, 18 * uiScale);
 
-    const title = this.add
-      .text(textX, textY, "Comandos", {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${titleFontSize}px`,
-        color: "#5f330b",
-        fontStyle: "700"
-      })
-      .setOrigin(0);
-
-    textY += title.height + titleGap;
-
-    CONTROL_LINES.forEach((line) => {
-      const lineText = this.add
-        .text(textX, textY, line, {
-          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-          fontSize: `${bodyFontSize}px`,
-          color: "#3f2a12",
-          lineSpacing: Math.floor(7 * uiScale),
-          wordWrap: { width: textWidth }
-        })
-        .setOrigin(0);
-
-      textY += lineText.height + paragraphGap;
-    });
-
-    const highlight = this.add
-      .text(textX, textY + Math.floor(6 * uiScale), "Explore com calma. Cada estação guarda uma parte da missão.", {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${highlightFontSize}px`,
-        color: "#6b3f14",
-        fontStyle: "700",
-        wordWrap: { width: textWidth }
-      })
-      .setOrigin(0);
-    textY = highlight.y + highlight.height;
+    this.drawFittedControlsText(textX, textY, textWidth, Math.max(80, textBottomLimit - textY), uiScale);
 
     this.startButton = createButton(
       this,
       board.centerX,
-      Math.max(textY + 42 * uiScale, Math.min(board.bottom - 54 * uiScale, height - 52 * uiScale)),
+      buttonY,
       "Começar",
       () => this.startMap(),
       {
-        width: Math.floor(250 * uiScale),
-        height: Math.floor(58 * uiScale),
+        width: Math.max(160, buttonWidth),
+        height: Math.floor(buttonHeight),
         backgroundColor: 0xfacc15,
         hoverBackgroundColor: 0xfbbf24,
         borderColor: 0x7c2d12,
@@ -124,6 +89,77 @@ export class ControlsScene extends Phaser.Scene {
         depth: 10
       }
     );
+  }
+
+  private drawFittedControlsText(
+    x: number,
+    y: number,
+    width: number,
+    maxHeight: number,
+    uiScale: number
+  ): void {
+    let titleFontSize = Math.floor(38 * uiScale);
+    let bodyFontSize = Math.floor(23 * uiScale);
+    let highlightFontSize = Math.floor(21 * uiScale);
+    let paragraphGap = Math.max(10, Math.floor(16 * uiScale));
+    let titleGap = Math.max(14, Math.floor(24 * uiScale));
+    let lineSpacing = Math.floor(7 * uiScale);
+    let rendered: Phaser.GameObjects.Text[] = [];
+
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      rendered.forEach((item) => item.destroy());
+      rendered = [];
+
+      let cursorY = y;
+      const title = this.add
+        .text(x, cursorY, "Comandos", {
+          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+          fontSize: `${titleFontSize}px`,
+          color: "#5f330b",
+          fontStyle: "700",
+          wordWrap: { width }
+        })
+        .setOrigin(0);
+      rendered.push(title);
+      cursorY += title.height + titleGap;
+
+      CONTROL_LINES.forEach((line) => {
+        const lineText = this.add
+          .text(x, cursorY, line, {
+            fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+            fontSize: `${bodyFontSize}px`,
+            color: "#3f2a12",
+            lineSpacing,
+            wordWrap: { width }
+          })
+          .setOrigin(0);
+        rendered.push(lineText);
+        cursorY += lineText.height + paragraphGap;
+      });
+
+      const highlight = this.add
+        .text(x, cursorY + Math.floor(4 * uiScale), "Explore com calma. Cada estação guarda uma parte da missão.", {
+          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+          fontSize: `${highlightFontSize}px`,
+          color: "#6b3f14",
+          fontStyle: "700",
+          wordWrap: { width }
+        })
+        .setOrigin(0);
+      rendered.push(highlight);
+
+      const totalHeight = highlight.y + highlight.height - y;
+      if (totalHeight <= maxHeight || bodyFontSize <= 13) {
+        return;
+      }
+
+      titleFontSize = Math.max(22, titleFontSize - 2);
+      bodyFontSize = Math.max(13, bodyFontSize - 1);
+      highlightFontSize = Math.max(13, highlightFontSize - 1);
+      paragraphGap = Math.max(5, paragraphGap - 1);
+      titleGap = Math.max(8, titleGap - 1);
+      lineSpacing = Math.max(1, lineSpacing - 1);
+    }
   }
 
   private mapImageRect(

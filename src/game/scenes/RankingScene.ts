@@ -3,20 +3,27 @@ import Phaser from "phaser";
 import { GameAudio } from "../audio/GameAudio";
 import { MINI_GAME_IDS, MINI_GAME_LABELS, SCENE_KEYS } from "../constants";
 import { gameStore } from "../state/GameStore";
-import type { ScoreEntry } from "../types/gameTypes";
 import { createButton } from "../ui/Button";
 import { showModal } from "../ui/Modal";
+
+const DYNAMIC_KEY = "stats-dynamic";
+
+interface RankingSceneData {
+  returnTo?: string;
+}
 
 export class RankingScene extends Phaser.Scene {
   private audio!: GameAudio;
   private modalOpen = false;
+  private returnSceneKey: string = SCENE_KEYS.map;
 
   constructor() {
     super(SCENE_KEYS.ranking);
   }
 
-  create(): void {
+  create(data: RankingSceneData = {}): void {
     this.audio = new GameAudio(this);
+    this.returnSceneKey = data.returnTo === SCENE_KEYS.home ? SCENE_KEYS.home : SCENE_KEYS.map;
     this.buildStaticLayout();
     this.renderDynamicLayout();
 
@@ -30,17 +37,20 @@ export class RankingScene extends Phaser.Scene {
 
   private buildStaticLayout(): void {
     const { width, height } = this.cameras.main;
-    const uiScale = Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.72, 1.35);
+    const uiScale = this.getUiScale();
 
     const bg = this.add.graphics();
-    bg.fillGradientStyle(0x111827, 0x7c2d12, 0x92400e, 0x1e3a8a, 1);
+    bg.fillStyle(0xeef7f1, 1);
     bg.fillRect(0, 0, width, height);
-    this.add.circle(width * 0.86, height * 0.14, Math.min(width, height) * 0.17, 0xfacc15, 0.09);
+    bg.fillStyle(0xcff2da, 1);
+    bg.fillRect(0, height * 0.58, width, height * 0.42);
+    bg.fillStyle(0xdbeafe, 0.72);
+    bg.fillRect(0, 0, width, height * 0.18);
 
     const shellW = width - 44;
     const shellH = height - 34;
-    this.add.rectangle(width * 0.5 + 4, height * 0.5 + 6, shellW, shellH, 0x020617, 0.3);
-    this.add.rectangle(width * 0.5, height * 0.5, shellW, shellH, 0xfffbeb, 0.94).setStrokeStyle(2, 0xffffff, 0.75);
+    this.add.rectangle(width * 0.5 + 4, height * 0.5 + 6, shellW, shellH, 0x0f172a, 0.16);
+    this.add.rectangle(width * 0.5, height * 0.5, shellW, shellH, 0xf8fafc, 0.95).setStrokeStyle(2, 0xb7d8c0, 1);
 
     const headerHeight = Math.max(82, Math.floor(90 * uiScale));
     const headerY = 22 + headerHeight * 0.5;
@@ -48,7 +58,7 @@ export class RankingScene extends Phaser.Scene {
     this.add.rectangle(width * 0.5, headerY, headerWidth, headerHeight, 0x0f172a, 0.96).setStrokeStyle(2, 0x334155);
 
     this.add
-      .text(width * 0.5, headerY, "Ranking e Sessao Atual", {
+      .text(width * 0.5, headerY, "Estatísticas", {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
         fontSize: `${Math.floor(50 * uiScale)}px`,
         color: "#f8fafc",
@@ -56,12 +66,12 @@ export class RankingScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    createButton(this, 108 * uiScale, headerY, "Menu", () => {
+    createButton(this, 108 * uiScale, headerY, this.returnSceneKey === SCENE_KEYS.home ? "Menu" : "Mapa", () => {
       if (this.modalOpen) {
         return;
       }
       this.audio.play("click");
-      this.scene.start(SCENE_KEYS.map);
+      this.scene.start(this.returnSceneKey);
     }, {
       width: 162 * uiScale,
       height: 52 * uiScale,
@@ -76,227 +86,390 @@ export class RankingScene extends Phaser.Scene {
 
   private renderDynamicLayout(): void {
     this.children.list
-      .filter((child) => child.getData("ranking-dynamic"))
+      .filter((child) => child.getData(DYNAMIC_KEY))
       .forEach((child) => child.destroy());
 
     const { width, height } = this.cameras.main;
-    const uiScale = Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.72, 1.35);
-    const isStacked = width < 1120;
+    const uiScale = this.getUiScale();
+    const isStacked = width < 1060;
+    const contentRect = new Phaser.Geom.Rectangle(36, 126, width - 72, height - 146);
+    const summaryHeight = isStacked ? Math.min(160, contentRect.height * 0.28) : 132;
+    const summaryRect = new Phaser.Geom.Rectangle(contentRect.x, contentRect.y, contentRect.width, summaryHeight);
+    const panelsTop = summaryRect.bottom + 16;
+    const panelsHeight = contentRect.bottom - panelsTop;
 
-    const contentTop = 126;
-    const contentHeight = height - contentTop - 20;
-    const leftPanelRect = isStacked
-      ? new Phaser.Geom.Rectangle(36, contentTop, width - 72, contentHeight * 0.45)
-      : new Phaser.Geom.Rectangle(36, contentTop, width * 0.43, contentHeight);
-    const rightPanelRect = isStacked
-      ? new Phaser.Geom.Rectangle(36, leftPanelRect.bottom + 14, width - 72, contentHeight - leftPanelRect.height - 14)
-      : new Phaser.Geom.Rectangle(leftPanelRect.right + 12, contentTop, width - (leftPanelRect.right + 48), contentHeight);
+    this.drawSummary(summaryRect, uiScale, isStacked);
 
-    const currentPanel = this.add
-      .rectangle(
-        leftPanelRect.centerX,
-        leftPanelRect.centerY,
-        leftPanelRect.width,
-        leftPanelRect.height,
-        0xffffff,
-        0.97
-      )
-      .setStrokeStyle(2, 0x16a34a)
-      .setData("ranking-dynamic", true);
+    if (isStacked) {
+      const sessionHeight = panelsHeight * 0.56;
+      const sessionRect = new Phaser.Geom.Rectangle(contentRect.x, panelsTop, contentRect.width, sessionHeight);
+      const historyRect = new Phaser.Geom.Rectangle(contentRect.x, sessionRect.bottom + 14, contentRect.width, panelsHeight - sessionHeight - 14);
+      this.drawSessionPanel(sessionRect, uiScale, true);
+      this.drawHistoryPanel(historyRect, uiScale, true);
+      return;
+    }
 
-    this.add
-      .text(currentPanel.x, leftPanelRect.y + 30, "Sessao atual", {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(34 * uiScale)}px`,
-        color: "#14532d",
-        fontStyle: "700"
-      })
-      .setOrigin(0.5, 0)
-      .setData("ranking-dynamic", true);
+    const sessionRect = new Phaser.Geom.Rectangle(contentRect.x, panelsTop, contentRect.width * 0.58, panelsHeight);
+    const historyRect = new Phaser.Geom.Rectangle(sessionRect.right + 14, panelsTop, contentRect.right - sessionRect.right - 14, panelsHeight);
+    this.drawSessionPanel(sessionRect, uiScale, false);
+    this.drawHistoryPanel(historyRect, uiScale, false);
+  }
 
+  private drawSummary(rect: Phaser.Geom.Rectangle, uiScale: number, isStacked: boolean): void {
     const total = gameStore.getTotalScore();
-    this.add
-      .text(currentPanel.x, leftPanelRect.y + 76, `${total} pts`, {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(58 * uiScale)}px`,
-        color: "#166534",
-        fontStyle: "700"
-      })
-      .setOrigin(0.5, 0)
-      .setData("ranking-dynamic", true);
+    const completedCount = this.getCompletedCount();
+    const completionPercent = Math.round((completedCount / MINI_GAME_IDS.length) * 100);
+    const entries = gameStore.getLeaderboard();
+    const bestScore = entries.reduce((best, entry) => Math.max(best, entry.totalScore), 0);
 
+    const gap = 12;
+    const cardCount = 4;
+    const cardWidth = isStacked ? (rect.width - gap) / 2 : (rect.width - gap * (cardCount - 1)) / cardCount;
+    const cardHeight = isStacked ? (rect.height - gap) / 2 : rect.height;
+    const metrics = [
+      { label: "Pontos atuais", value: `${total}`, detail: "sessão em andamento", color: 0x166534 },
+      { label: "Progresso", value: `${completionPercent}%`, detail: `${completedCount}/${MINI_GAME_IDS.length} minijogos`, color: 0x2563eb },
+      { label: "Sessões", value: `${entries.length}`, detail: "arquivadas", color: 0x7c3aed },
+      { label: "Melhor marca", value: `${bestScore}`, detail: "pontos salvos", color: 0xc2410c }
+    ];
+
+    metrics.forEach((metric, index) => {
+      const col = isStacked ? index % 2 : index;
+      const row = isStacked ? Math.floor(index / 2) : 0;
+      const x = rect.x + col * (cardWidth + gap);
+      const y = rect.y + row * (cardHeight + gap);
+      this.drawMetricCard(new Phaser.Geom.Rectangle(x, y, cardWidth, cardHeight), metric, uiScale);
+    });
+  }
+
+  private drawMetricCard(
+    rect: Phaser.Geom.Rectangle,
+    metric: { label: string; value: string; detail: string; color: number },
+    uiScale: number
+  ): void {
+    this.mark(this.add.rectangle(rect.centerX + 3, rect.centerY + 4, rect.width, rect.height, 0x0f172a, 0.12));
+    this.mark(this.add.rectangle(rect.centerX, rect.centerY, rect.width, rect.height, 0xffffff, 0.98).setStrokeStyle(2, metric.color, 0.55));
+    this.mark(this.add.rectangle(rect.x + 4, rect.centerY, 8, rect.height - 12, metric.color, 1).setOrigin(0, 0.5));
+
+    this.mark(this.add.text(rect.x + 22, rect.y + 16 * uiScale, metric.label, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(18 * uiScale)}px`,
+      color: "#475569",
+      fontStyle: "700"
+    }));
+
+    this.mark(this.add.text(rect.x + 22, rect.y + rect.height * 0.42, metric.value, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(42 * uiScale)}px`,
+      color: "#0f172a",
+      fontStyle: "700"
+    }).setOrigin(0, 0.5));
+
+    this.mark(this.add.text(rect.x + 22, rect.bottom - 22 * uiScale, metric.detail, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(16 * uiScale)}px`,
+      color: "#64748b"
+    }).setOrigin(0, 0.5));
+  }
+
+  private drawSessionPanel(rect: Phaser.Geom.Rectangle, uiScale: number, compact: boolean): void {
+    this.drawPanel(rect, 0x16a34a);
+
+    this.mark(this.add.text(rect.x + 24, rect.y + 22, "Sessão atual", {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(32 * uiScale)}px`,
+      color: "#14532d",
+      fontStyle: "700"
+    }));
+
+    const completedCount = this.getCompletedCount();
+    this.drawBadge(
+      rect.right - 24,
+      rect.y + 38,
+      `${completedCount}/${MINI_GAME_IDS.length} concluídos`,
+      0xdcfce7,
+      "#14532d",
+      uiScale
+    );
+
+    const rowsTop = rect.y + 82;
+    const bottomReserved = compact ? 58 : 74;
+    const rowGap = 8;
+    const rowHeight = Math.max(42, (rect.bottom - rowsTop - bottomReserved - rowGap * (MINI_GAME_IDS.length - 1)) / MINI_GAME_IDS.length);
     const scores = gameStore.getScores();
-    MINI_GAME_IDS.forEach((id, index) => {
-      const y = leftPanelRect.y + 160 + index * (38 * uiScale);
-      this.add
-        .text(leftPanelRect.x + 24, y, MINI_GAME_LABELS[id], {
-          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-          fontSize: `${Math.floor(20 * uiScale)}px`,
-          color: "#334155",
-          wordWrap: {
-            width: leftPanelRect.width - 170
-          }
-        })
-        .setOrigin(0, 0.5)
-        .setData("ranking-dynamic", true);
 
-      this.add
-        .text(leftPanelRect.right - 24, y, `${scores[id]} pts`, {
-          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-          fontSize: `${Math.floor(22 * uiScale)}px`,
-          color: "#0f172a",
-          fontStyle: "700"
-        })
-        .setOrigin(1, 0.5)
-        .setData("ranking-dynamic", true);
+    MINI_GAME_IDS.forEach((id, index) => {
+      const rowRect = new Phaser.Geom.Rectangle(
+        rect.x + 20,
+        rowsTop + index * (rowHeight + rowGap),
+        rect.width - 40,
+        rowHeight
+      );
+      const completed = gameStore.isMiniGameCompleted(id);
+      this.drawMiniGameRow(rowRect, MINI_GAME_LABELS[id], scores[id], completed, uiScale);
     });
 
-    const buttonY = leftPanelRect.bottom - 34;
-    const saveButton = createButton(this, leftPanelRect.centerX - (isStacked ? 100 : 110), buttonY, "Salvar sessao", () => {
-      this.handleSaveSession();
+    const buttonY = rect.bottom - 34;
+    const total = gameStore.getTotalScore();
+    const archiveButton = createButton(this, rect.centerX - 112 * uiScale, buttonY, "Arquivar", () => {
+      this.handleArchiveSession();
     }, {
-      width: Math.floor(210 * uiScale),
+      width: Math.floor(204 * uiScale),
       height: Math.floor(52 * uiScale),
       backgroundColor: 0xdcfce7,
       hoverBackgroundColor: 0xbbf7d0,
       borderColor: 0x16a34a,
       hoverBorderColor: 0x15803d,
       textColor: "#14532d",
-      fontSize: `${Math.floor(24 * uiScale)}px`
+      fontSize: `${Math.floor(23 * uiScale)}px`
     });
-    saveButton.container
-      .setData("ranking-dynamic", true)
+    archiveButton.container
+      .setData(DYNAMIC_KEY, true)
       .setDepth(20);
 
     if (total <= 0) {
-      saveButton.container.setAlpha(0.45);
-      saveButton.container.disableInteractive();
+      archiveButton.container.setAlpha(0.45);
+      archiveButton.container.disableInteractive();
     }
 
-    createButton(this, leftPanelRect.centerX + (isStacked ? 100 : 110), buttonY, "Resetar", () => {
+    createButton(this, rect.centerX + 112 * uiScale, buttonY, "Resetar", () => {
       if (this.modalOpen) {
         return;
       }
       this.audio.play("click");
       gameStore.resetCurrentSession();
     }, {
-      width: Math.floor(180 * uiScale),
+      width: Math.floor(176 * uiScale),
       height: Math.floor(52 * uiScale),
-      backgroundColor: 0xffedd5,
-      hoverBackgroundColor: 0xffd7b0,
-      borderColor: 0xea580c,
-      hoverBorderColor: 0xc2410c,
-      textColor: "#7c2d12",
-      fontSize: `${Math.floor(24 * uiScale)}px`
+      backgroundColor: 0xfee2e2,
+      hoverBackgroundColor: 0xfecaca,
+      borderColor: 0xdc2626,
+      hoverBorderColor: 0xb91c1c,
+      textColor: "#7f1d1d",
+      fontSize: `${Math.floor(23 * uiScale)}px`
     }).container
-      .setData("ranking-dynamic", true)
+      .setData(DYNAMIC_KEY, true)
       .setDepth(20);
-
-    this.drawLeaderboard(rightPanelRect, uiScale);
   }
 
-  private drawLeaderboard(panelRect: Phaser.Geom.Rectangle, uiScale: number): void {
-    this.add
-      .rectangle(panelRect.centerX, panelRect.centerY, panelRect.width, panelRect.height, 0xffffff, 0.97)
-      .setStrokeStyle(2, 0xea580c)
-      .setData("ranking-dynamic", true);
+  private drawMiniGameRow(
+    rect: Phaser.Geom.Rectangle,
+    label: string,
+    score: number,
+    completed: boolean,
+    uiScale: number
+  ): void {
+    const rowColor = completed ? 0xf0fdf4 : 0xf8fafc;
+    const accentColor = completed ? 0x16a34a : 0x94a3b8;
+    const statusText = completed ? "Concluído" : "Pendente";
+    const statusBg = completed ? 0xbbf7d0 : 0xe2e8f0;
+    const statusColor = completed ? "#14532d" : "#475569";
 
-    this.add
-      .text(panelRect.centerX, panelRect.y + 24, "Leaderboard", {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(36 * uiScale)}px`,
-        color: "#7c2d12",
-        fontStyle: "700"
-      })
-      .setOrigin(0.5, 0)
-      .setData("ranking-dynamic", true);
+    this.mark(this.add.rectangle(rect.centerX, rect.centerY, rect.width, rect.height, rowColor, 1).setStrokeStyle(1, accentColor, 0.5));
+    this.mark(this.add.rectangle(rect.x + 4, rect.centerY, 7, rect.height - 10, accentColor, 1).setOrigin(0, 0.5));
+
+    this.mark(this.add.text(rect.x + 20, rect.centerY, label, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(19 * uiScale)}px`,
+      color: "#0f172a",
+      fontStyle: "700",
+      wordWrap: {
+        width: Math.max(110, rect.width - 250 * uiScale)
+      }
+    }).setOrigin(0, 0.5));
+
+    this.drawBadge(rect.right - 116 * uiScale, rect.centerY, statusText, statusBg, statusColor, uiScale * 0.82);
+
+    this.mark(this.add.text(rect.right - 18, rect.centerY, `${score} pts`, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(20 * uiScale)}px`,
+      color: "#0f172a",
+      fontStyle: "700"
+    }).setOrigin(1, 0.5));
+  }
+
+  private drawHistoryPanel(rect: Phaser.Geom.Rectangle, uiScale: number, compact: boolean): void {
+    this.drawPanel(rect, 0x2563eb);
+
+    this.mark(this.add.text(rect.x + 24, rect.y + 22, "Histórico", {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(32 * uiScale)}px`,
+      color: "#1e3a8a",
+      fontStyle: "700"
+    }));
 
     const entries = gameStore.getLeaderboard();
     if (entries.length === 0) {
-      this.add
-        .text(panelRect.centerX, panelRect.centerY, "Nenhuma sessao salva ainda.", {
-          fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-          fontSize: `${Math.floor(28 * uiScale)}px`,
-          color: "#6b7280"
-        })
-        .setOrigin(0.5)
-        .setData("ranking-dynamic", true);
+      this.mark(this.add.text(rect.centerX, rect.centerY, "Nenhuma sessão arquivada ainda.", {
+        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+        fontSize: `${Math.floor(26 * uiScale)}px`,
+        color: "#64748b",
+        align: "center",
+        wordWrap: {
+          width: rect.width - 60
+        }
+      }).setOrigin(0.5));
       return;
     }
 
-    const rowHeight = Math.max(42, Math.floor(46 * uiScale));
-    const top = panelRect.y + 80;
-    const visibleRows = Math.max(1, Math.floor((panelRect.height - 96) / rowHeight));
-    entries.slice(0, visibleRows).forEach((entry, index) => {
-      this.drawRow(entry, index, panelRect, top + index * rowHeight, rowHeight, uiScale);
+    const bestScore = entries.reduce((best, entry) => Math.max(best, entry.totalScore), 0);
+    const averageScore = Math.round(entries.reduce((sum, entry) => sum + entry.totalScore, 0) / entries.length);
+    const latest = entries.reduce((latestEntry, entry) => {
+      return entry.timestampIso > latestEntry.timestampIso ? entry : latestEntry;
+    }, entries[0]);
+
+    const statTop = rect.y + 78;
+    const statGap = 10;
+    const statHeight = compact ? 42 : 48;
+    const statWidth = (rect.width - 48 - statGap) / 2;
+    const statRows = [
+      { label: "Sessões", value: `${entries.length}` },
+      { label: "Melhor", value: `${bestScore} pts` },
+      { label: "Média", value: `${averageScore} pts` },
+      { label: "Última", value: this.formatDate(latest.timestampIso) }
+    ];
+
+    statRows.forEach((stat, index) => {
+      const col = index % 2;
+      const row = Math.floor(index / 2);
+      const statRect = new Phaser.Geom.Rectangle(
+        rect.x + 24 + col * (statWidth + statGap),
+        statTop + row * (statHeight + statGap),
+        statWidth,
+        statHeight
+      );
+      this.drawSmallStat(statRect, stat.label, stat.value, uiScale);
+    });
+
+    const averagesTop = statTop + (statHeight + statGap) * 2 + 26;
+    this.mark(this.add.text(rect.x + 24, averagesTop, "Média por minijogo", {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(22 * uiScale)}px`,
+      color: "#1e3a8a",
+      fontStyle: "700"
+    }));
+
+    const averages = this.getAverageScores(entries);
+    const maxAverage = Math.max(1, ...MINI_GAME_IDS.map((id) => averages[id]));
+    const rowHeight = compact ? 36 : 42;
+    MINI_GAME_IDS.forEach((id, index) => {
+      const y = averagesTop + 44 + index * rowHeight;
+      if (y > rect.bottom - 20) {
+        return;
+      }
+      this.drawAverageRow(rect.x + 24, y, rect.width - 48, MINI_GAME_LABELS[id], averages[id], maxAverage, uiScale);
     });
   }
 
-  private drawRow(
-    entry: ScoreEntry,
-    index: number,
-    panelRect: Phaser.Geom.Rectangle,
+  private drawSmallStat(rect: Phaser.Geom.Rectangle, label: string, value: string, uiScale: number): void {
+    this.mark(this.add.rectangle(rect.centerX, rect.centerY, rect.width, rect.height, 0xeff6ff, 1).setStrokeStyle(1, 0x93c5fd, 1));
+
+    this.mark(this.add.text(rect.x + 12, rect.centerY, label, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(15 * uiScale)}px`,
+      color: "#475569",
+      fontStyle: "700"
+    }).setOrigin(0, 0.5));
+
+    this.mark(this.add.text(rect.right - 12, rect.centerY, value, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(17 * uiScale)}px`,
+      color: "#0f172a",
+      fontStyle: "700"
+    }).setOrigin(1, 0.5));
+  }
+
+  private drawAverageRow(
+    x: number,
     y: number,
-    rowHeight: number,
+    width: number,
+    label: string,
+    score: number,
+    maxAverage: number,
     uiScale: number
   ): void {
-    const rowBg = index % 2 === 0 ? 0xfff7ed : 0xffedd5;
-    this.add
-      .rectangle(panelRect.centerX, y + rowHeight * 0.5, panelRect.width - 24, rowHeight - 4, rowBg, 0.85)
-      .setStrokeStyle(1, 0xfdba74, 1)
-      .setData("ranking-dynamic", true);
+    const labelWidth = width * 0.48;
+    const barWidth = width * 0.32;
+    const barX = x + labelWidth + 12;
+    const scoreTextX = x + width;
+    const fillWidth = barWidth * Phaser.Math.Clamp(score / maxAverage, 0, 1);
 
-    const date = new Date(entry.timestampIso);
-    const stamp = `${date.toLocaleDateString("pt-BR")} ${date.toLocaleTimeString("pt-BR", {
+    this.mark(this.add.text(x, y, label, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(16 * uiScale)}px`,
+      color: "#334155",
+      wordWrap: {
+        width: labelWidth
+      }
+    }).setOrigin(0, 0.5));
+
+    this.mark(this.add.rectangle(barX, y, barWidth, 10 * uiScale, 0xdbeafe, 1).setOrigin(0, 0.5));
+    this.mark(this.add.rectangle(barX, y, fillWidth, 10 * uiScale, 0x2563eb, 1).setOrigin(0, 0.5));
+
+    this.mark(this.add.text(scoreTextX, y, `${Math.round(score)} pts`, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(16 * uiScale)}px`,
+      color: "#0f172a",
+      fontStyle: "700"
+    }).setOrigin(1, 0.5));
+  }
+
+  private drawPanel(rect: Phaser.Geom.Rectangle, color: number): void {
+    this.mark(this.add.rectangle(rect.centerX + 4, rect.centerY + 6, rect.width, rect.height, 0x0f172a, 0.12));
+    this.mark(this.add.rectangle(rect.centerX, rect.centerY, rect.width, rect.height, 0xffffff, 0.97).setStrokeStyle(2, color, 0.75));
+  }
+
+  private drawBadge(
+    x: number,
+    y: number,
+    text: string,
+    backgroundColor: number,
+    textColor: string,
+    uiScale: number
+  ): void {
+    const label = this.add.text(x, y, text, {
+      fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
+      fontSize: `${Math.floor(17 * uiScale)}px`,
+      color: textColor,
+      fontStyle: "700"
+    }).setOrigin(0.5);
+    const width = label.width + 22 * uiScale;
+    const height = label.height + 10 * uiScale;
+
+    const background = this.mark(this.add.rectangle(x, y, width, height, backgroundColor, 1).setStrokeStyle(1, 0xffffff, 0.9));
+    this.mark(label.setDepth(background.depth + 1));
+  }
+
+  private getCompletedCount(): number {
+    return MINI_GAME_IDS.filter((id) => gameStore.isMiniGameCompleted(id)).length;
+  }
+
+  private getAverageScores(entries: ReturnType<typeof gameStore.getLeaderboard>): Record<string, number> {
+    const averages: Record<string, number> = {};
+
+    MINI_GAME_IDS.forEach((id) => {
+      averages[id] = entries.reduce((sum, entry) => sum + entry.miniGameScores[id], 0) / entries.length;
+    });
+
+    return averages;
+  }
+
+  private formatDate(timestampIso: string): string {
+    const date = new Date(timestampIso);
+    return `${date.toLocaleDateString("pt-BR")} ${date.toLocaleTimeString("pt-BR", {
       hour: "2-digit",
       minute: "2-digit"
     })}`;
-
-    this.add
-      .text(panelRect.x + 14, y + rowHeight * 0.5, `${index + 1}o`, {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(20 * uiScale)}px`,
-        color: "#7c2d12",
-        fontStyle: "700"
-      })
-      .setOrigin(0, 0.5)
-      .setData("ranking-dynamic", true);
-
-    this.add
-      .text(panelRect.x + 64, y + rowHeight * 0.5, `${entry.playerName} - ${stamp}`, {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(18 * uiScale)}px`,
-        color: "#1f2937",
-        wordWrap: {
-          width: panelRect.width - 230
-        }
-      })
-      .setOrigin(0, 0.5)
-      .setData("ranking-dynamic", true);
-
-    this.add
-      .text(panelRect.right - 14, y + rowHeight * 0.5, `${entry.totalScore} pts`, {
-        fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(20 * uiScale)}px`,
-        color: "#92400e",
-        fontStyle: "700"
-      })
-      .setOrigin(1, 0.5)
-      .setData("ranking-dynamic", true);
   }
 
-  private handleSaveSession(): void {
-    if (this.modalOpen) {
-      return;
-    }
-
-    if (gameStore.getTotalScore() <= 0) {
+  private handleArchiveSession(): void {
+    if (this.modalOpen || gameStore.getTotalScore() <= 0) {
       return;
     }
 
     this.audio.play("click");
     const suggestedName = gameStore.getPlayerName();
-    const raw = window.prompt("Digite seu nome para o ranking:", suggestedName);
+    const raw = window.prompt("Nome para arquivar as estatísticas:", suggestedName);
     if (raw === null) {
       return;
     }
@@ -305,8 +478,8 @@ export class RankingScene extends Phaser.Scene {
     gameStore.saveSession(name);
     this.audio.play("success");
     this.openModal({
-      title: "Sessao salva",
-      message: "Pontuacao registrada no ranking e sessao reiniciada.",
+      title: "Sessão arquivada",
+      message: "As estatísticas foram registradas no histórico.",
       tone: "success"
     });
   }
@@ -326,5 +499,14 @@ export class RankingScene extends Phaser.Scene {
       }
     });
   }
-}
 
+  private mark<T extends Phaser.GameObjects.GameObject>(child: T): T {
+    child.setData(DYNAMIC_KEY, true);
+    return child;
+  }
+
+  private getUiScale(): number {
+    const { width, height } = this.cameras.main;
+    return Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.72, 1.35);
+  }
+}

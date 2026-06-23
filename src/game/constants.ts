@@ -22,7 +22,8 @@ export const MAP_STATION_ASSETS = {
   lavoura: { key: "station-lavoura", path: "/images/lavoura.png" },
   deposito: { key: "station-deposito", path: "/images/deposito.png" },
   descarte: { key: "station-descarte", path: "/images/descarte.png" },
-  galpaoEpis: { key: "station-galpao-epis", path: "/images/galpaoepis.png" }
+  galpaoEpis: { key: "station-galpao-epis", path: "/images/galpaoepis.png" },
+  estatisticas: { key: "station-estatisticas", path: "/images/estatisticas.png" }
 } as const;
 
 export const DRESS_UP_ASSETS = {
@@ -46,9 +47,15 @@ export const MAP_BACKGROUND = {
   path: "/images/mapa-principal.png"
 } as const;
 
+export const BACKGROUND_MUSIC = {
+  key: "music-background",
+  path: "/audio/paths-through-the-orchard.mp3"
+} as const;
+
 export const STORAGE_KEYS = {
   leaderboard: "detetive-na-propriedade.leaderboard.v1",
-  playerName: "detetive-na-propriedade.player-name.v1"
+  playerName: "detetive-na-propriedade.player-name.v1",
+  musicVolume: "detetive-na-propriedade.music-volume.v1"
 } as const;
 
 export const SCENE_KEYS = {
@@ -62,7 +69,8 @@ export const SCENE_KEYS = {
   spotError: "spot-error-scene",
   packaging: "packaging-scene",
   dressUp: "dress-up-scene",
-  ranking: "ranking-scene"
+  ranking: "ranking-scene",
+  settings: "settings-scene"
 } as const;
 
 /* -------- Map constants -------- */
@@ -88,7 +96,7 @@ export const MINI_GAME_IDS: MiniGameId[] = [
 
 export const MINI_GAME_LABELS: Record<MiniGameId, string> = {
   jogo_erros_lavoura: "Jogo dos Erros - Lavoura",
-  jogo_erros_deposito: "Jogo dos Erros - Deposito",
+  jogo_erros_deposito: "Jogo dos Erros - Depósito",
   jornada_embalagem: "Jornada da Embalagem",
   vista_se: "Vista-se Corretamente"
 };

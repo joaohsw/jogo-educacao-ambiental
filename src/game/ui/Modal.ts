@@ -19,7 +19,7 @@ const toneStyle: Record<
   success: { color: 0x16a34a, accent: 0xdcfce7, label: "SUCESSO", buttonLabelColor: "#f8fafc" },
   error: { color: 0xdc2626, accent: 0xfee2e2, label: "ERRO", buttonLabelColor: "#f8fafc" },
   info: { color: 0x2563eb, accent: 0xdbeafe, label: "INFO", buttonLabelColor: "#f8fafc" },
-  complete: { color: 0xea580c, accent: 0xffedd5, label: "CONCLUIDO", buttonLabelColor: "#f8fafc" }
+  complete: { color: 0x16a34a, accent: 0xdcfce7, label: "CONCLUÍDO", buttonLabelColor: "#f8fafc" }
 };
 
 export const showModal = (

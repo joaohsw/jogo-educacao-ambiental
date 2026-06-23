@@ -16,7 +16,7 @@
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Correto! Nao se deve comer nem beber perto da area de aplicacao de agrotoxicos."
+              "value": "Correto! Não se deve comer nem beber perto da área de aplicação de agrotóxicos."
             }
           ],
           "rotation": 0,
@@ -34,7 +34,7 @@
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Muito bem! Embalagens e produtos nao devem ficar largados no campo; precisam de armazenamento e descarte corretos."
+              "value": "Muito bem! Embalagens e produtos não devem ficar largados no campo; precisam de armazenamento e descarte corretos."
             }
           ],
           "rotation": 0,
@@ -70,7 +70,7 @@
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Muito bem! Animais precisam ficar longe da area de aplicacao para evitar contaminacao."
+              "value": "Muito bem! Animais precisam ficar longe da área de aplicação para evitar contaminação."
             }
           ],
           "rotation": 0,
@@ -88,7 +88,7 @@
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Correto! A pulverizacao deve respeitar distancia segura de pessoas, animais, cercas e areas sensiveis."
+              "value": "Correto! A pulverização deve respeitar distância segura de pessoas, animais, cercas e áreas sensíveis."
             }
           ],
           "rotation": 0,

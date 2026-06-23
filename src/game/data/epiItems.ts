@@ -18,42 +18,42 @@ export const epiItems: EpiItem[] = [
   },
   {
     id: "oculos",
-    label: "Oculos de Protecao",
+    label: "Óculos de Proteção",
     isCorrect: true,
     zone: "eyes",
     assetKey: DRESS_UP_ASSETS.oculos.key
   },
   {
     id: "luvas",
-    label: "Luvas de Protecao",
+    label: "Luvas de Proteção",
     isCorrect: true,
     zone: "hands",
     assetKey: DRESS_UP_ASSETS.luvasVerdes.key
   },
   {
     id: "avental",
-    label: "Avental Impermeavel",
+    label: "Avental Impermeável",
     isCorrect: true,
     zone: "torso",
     assetKey: DRESS_UP_ASSETS.avental.key
   },
   {
     id: "botas",
-    label: "Botas Impermeaveis",
+    label: "Botas Impermeáveis",
     isCorrect: true,
     zone: "feet",
     assetKey: DRESS_UP_ASSETS.botas.key
   },
   {
     id: "bone_arabe",
-    label: "Bone Arabe",
+    label: "Boné Árabe",
     isCorrect: true,
     zone: "head",
     assetKey: DRESS_UP_ASSETS.boneArabe.key
   },
   {
     id: "mascara_cirurgica",
-    label: "Mascara Cirurgica",
+    label: "Máscara Cirúrgica",
     isCorrect: false,
     zone: "face",
     assetKey: DRESS_UP_ASSETS.mascaraCirurgica.key
@@ -74,7 +74,7 @@ export const epiItems: EpiItem[] = [
   },
   {
     id: "luvas_latex",
-    label: "Luvas de Latex",
+    label: "Luvas de Látex",
     isCorrect: false,
     zone: "hands",
     assetKey: DRESS_UP_ASSETS.luvasLatex.key

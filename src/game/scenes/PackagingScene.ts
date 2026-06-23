@@ -93,7 +93,7 @@ export class PackagingScene extends MiniGameScene {
     const { width, height } = this.cameras.main;
     const uiScale = Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.72, 1.35);
     this.add
-      .text(width * 0.5, height * 0.15, "Analise as cartas e monte a sequencia correta.", {
+      .text(width * 0.5, height * 0.15, "Analise as cartas e monte a sequência correta.", {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
         fontSize: `${Math.floor(28 * uiScale)}px`,
         color: "#111827",
@@ -109,7 +109,7 @@ export class PackagingScene extends MiniGameScene {
     const slotLayer = map.getObjectLayer("slots");
     const trayLayer = map.getObjectLayer("tray");
     if (!slotLayer) {
-      throw new Error("Camada slots nao encontrada em map-packaging");
+      throw new Error("Camada slots não encontrada em map-packaging");
     }
 
     const { width, height } = this.cameras.main;
@@ -314,8 +314,8 @@ export class PackagingScene extends MiniGameScene {
       this.audio.play("complete");
       gameStore.markMiniGameCompleted("jornada_embalagem");
       this.openModal({
-        title: "Sequencia completa",
-        message: "Voce concluiu a Jornada da Embalagem com sucesso.",
+        title: "Sequência completa",
+        message: "Você concluiu a Jornada da Embalagem com sucesso.",
         tone: "complete",
         confirmLabel: "Voltar",
         onConfirm: () => this.returnToMap()

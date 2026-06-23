@@ -16,7 +16,7 @@
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Correto! Produtos quimicos nao devem ficar soltos no chao; precisam estar fechados, identificados e em local seguro."
+              "value": "Correto! Produtos químicos não devem ficar soltos no chão; precisam estar fechados, identificados e em local seguro."
             }
           ],
           "rotation": 0,
@@ -52,7 +52,7 @@
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Correto! Caixas e embalagens abertas no chao deixam o deposito desorganizado e podem causar acidentes ou contaminacao."
+              "value": "Correto! Caixas e embalagens abertas no chão deixam o depósito desorganizado e podem causar acidentes ou contaminação."
             }
           ],
           "rotation": 0,
@@ -70,7 +70,7 @@
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Muito bem! Animais nao podem entrar no deposito, pois podem se contaminar e espalhar residuos."
+              "value": "Muito bem! Animais não podem entrar no depósito, pois podem se contaminar e espalhar resíduos."
             }
           ],
           "rotation": 0,

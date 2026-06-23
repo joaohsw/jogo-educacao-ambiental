@@ -12,6 +12,7 @@ import { MapScene } from "./game/scenes/MapScene";
 import { PauseScene } from "./game/scenes/PauseScene";
 import { PackagingScene } from "./game/scenes/PackagingScene";
 import { RankingScene } from "./game/scenes/RankingScene";
+import { SettingsScene } from "./game/scenes/SettingsScene";
 import { SpotErrorScene } from "./game/scenes/SpotErrorScene";
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -43,7 +44,8 @@ const config: Phaser.Types.Core.GameConfig = {
     SpotErrorScene,
     PackagingScene,
     DressUpScene,
-    RankingScene
+    RankingScene,
+    SettingsScene
   ]
 };
 

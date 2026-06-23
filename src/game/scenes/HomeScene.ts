@@ -70,8 +70,9 @@ export class HomeScene extends Phaser.Scene {
     const minButtonWidth = Math.min(220, maxButtonWidth);
     const buttonWidth = Phaser.Math.Clamp(width < 560 ? width * 0.78 : width * 0.31, minButtonWidth, maxButtonWidth);
     const buttonHeight = Phaser.Math.Clamp(58 * uiScale, 42, 66);
+    const smallButtonHeight = Math.max(40, buttonHeight * 0.82);
     const gap = Phaser.Math.Clamp(14 * uiScale, 8, 18);
-    const totalHeight = buttonHeight * 3 + gap * 2;
+    const totalHeight = buttonHeight * 2 + smallButtonHeight * 2 + gap * 3;
     const bottomPad = Phaser.Math.Clamp(28 * uiScale, 14, 34);
     const minStartY = buttonHeight * 0.5 + 12;
     const maxStartY = height - bottomPad - totalHeight + buttonHeight * 0.5;
@@ -122,12 +123,31 @@ export class HomeScene extends Phaser.Scene {
     }
     this.addMenuButton(continueButton);
 
-    this.addMenuButton(createButton(this, x, startY + (buttonHeight + gap) * 2, "Ranking", () => {
+    const settingsY = startY + buttonHeight + gap + (buttonHeight + smallButtonHeight) * 0.5 + gap;
+    const statisticsY = settingsY + smallButtonHeight + gap;
+    const secondaryWidth = Math.min(buttonWidth * 0.74, 280);
+
+    this.addMenuButton(createButton(this, x, settingsY, "Configurações", () => {
       this.audio.play("click");
-      this.scene.start(SCENE_KEYS.ranking);
+      this.scene.start(SCENE_KEYS.settings);
     }, {
-      width: Math.min(buttonWidth * 0.74, 280),
-      height: Math.max(40, buttonHeight * 0.82),
+      width: secondaryWidth,
+      height: smallButtonHeight,
+      backgroundColor: 0x4338ca,
+      hoverBackgroundColor: 0x4f46e5,
+      borderColor: 0xc7d2fe,
+      hoverBorderColor: 0xe0e7ff,
+      textColor: "#eef2ff",
+      fontSize: `${secondaryFontSize}px`,
+      depth: 10
+    }));
+
+    this.addMenuButton(createButton(this, x, statisticsY, "Estatísticas", () => {
+      this.audio.play("click");
+      this.scene.start(SCENE_KEYS.ranking, { returnTo: SCENE_KEYS.home });
+    }, {
+      width: secondaryWidth,
+      height: smallButtonHeight,
       backgroundColor: 0x0f766e,
       hoverBackgroundColor: 0x0d9488,
       borderColor: 0x99f6e4,

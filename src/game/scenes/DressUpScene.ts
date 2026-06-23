@@ -38,6 +38,9 @@ interface ItemVisualConfig {
   depth: number;
 }
 
+const BOOT_LEFT_FRAME = "left-boot";
+const BOOT_RIGHT_FRAME = "right-boot";
+
 const ITEM_VISUALS: Record<string, ItemVisualConfig> = {
   bone_arabe: {
     trayWidth: 86,
@@ -76,9 +79,9 @@ const ITEM_VISUALS: Record<string, ItemVisualConfig> = {
   },
   botas: {
     trayWidth: 92,
-    equipWidthFactor: 0.33,
+    equipWidthFactor: 0.375,
     offsetXFactor: 0,
-    offsetYFactor: -0.088,
+    offsetYFactor: -0.095,
     depth: 26
   },
   mascara_cirurgica: {
@@ -112,6 +115,7 @@ export class DressUpScene extends MiniGameScene {
   private items: ItemRuntime[] = [];
   private equippedText!: Phaser.GameObjects.Text;
   private avatarLayout!: AvatarLayout;
+  private completionPending = false;
 
   constructor() {
     super(SCENE_KEYS.dressUp);
@@ -120,6 +124,7 @@ export class DressUpScene extends MiniGameScene {
   create(): void {
     this.zones = [];
     this.items = [];
+    this.completionPending = false;
     this.beginMiniGame();
 
     this.drawBackground();
@@ -158,7 +163,7 @@ export class DressUpScene extends MiniGameScene {
       .setOrigin(0.5);
 
     createButton(this, 108 * uiScale, headerY, "Voltar", () => {
-      if (this.modalOpen) return;
+      if (this.isInputBlocked()) return;
       this.audio.play("click");
       this.returnToMap();
     }, {
@@ -225,12 +230,12 @@ export class DressUpScene extends MiniGameScene {
     const layout = this.avatarLayout;
     const h = layout.height;
     const definitions = [
-      { id: "head", label: "Cabeca", x: layout.x, y: layout.bottomY - h * 0.83, w: h * 0.42, hh: h * 0.23 },
+      { id: "head", label: "Cabeça", x: layout.x, y: layout.bottomY - h * 0.83, w: h * 0.42, hh: h * 0.23 },
       { id: "eyes", label: "Olhos", x: layout.x, y: layout.bottomY - h * 0.67, w: h * 0.38, hh: h * 0.13 },
       { id: "face", label: "Rosto", x: layout.x, y: layout.bottomY - h * 0.58, w: h * 0.38, hh: h * 0.17 },
-      { id: "hands", label: "Maos", x: layout.x, y: layout.bottomY - h * 0.35, w: h * 0.68, hh: h * 0.26 },
+      { id: "hands", label: "Mãos", x: layout.x, y: layout.bottomY - h * 0.35, w: h * 0.68, hh: h * 0.26 },
       { id: "torso", label: "Tronco", x: layout.x, y: layout.bottomY - h * 0.36, w: h * 0.48, hh: h * 0.36 },
-      { id: "feet", label: "Pes", x: layout.x, y: layout.bottomY - h * 0.07, w: h * 0.52, hh: h * 0.18 }
+      { id: "feet", label: "Pés", x: layout.x, y: layout.bottomY - h * 0.07, w: h * 0.52, hh: h * 0.18 }
     ];
 
     this.zones = definitions.map((definition) => {
@@ -252,17 +257,20 @@ export class DressUpScene extends MiniGameScene {
     const { width, height } = this.cameras.main;
     const uiScale = this.getUiScale();
     const columns = width >= 980 ? 2 : 5;
-    const cellW = width >= 980 ? Math.max(150, width * 0.135) : Math.max(112, width * 0.17);
-    const cellH = width >= 980 ? Math.max(98, height * 0.125) : Math.max(82, height * 0.11);
+    const rows = Math.ceil(shuffled.length / columns);
     const startX = width >= 980 ? width * 0.61 : width * 0.12;
-    const startY = width >= 980 ? height * 0.24 : height * 0.62;
+    const endX = width >= 980 ? Math.min(width - 100 * uiScale, startX + Math.max(170, width * 0.15)) : width * 0.88;
+    const startY = width >= 980 ? height * 0.24 : height * 0.64;
+    const endY = width >= 980 ? height * 0.9 : height * 0.87;
+    const cellW = columns > 1 ? (endX - startX) / (columns - 1) : 0;
+    const cellH = rows > 1 ? (endY - startY) / (rows - 1) : 0;
 
     shuffled.forEach((itemData, index) => {
       const row = Math.floor(index / columns);
       const col = index % columns;
       const x = startX + col * cellW;
       const y = startY + row * cellH;
-      const item = this.createItemVisual(itemData, x, y, uiScale);
+      const item = this.createItemVisual(itemData, x, y, uiScale, cellW, cellH);
       const runtime: ItemRuntime = {
         data: itemData,
         container: item.container,
@@ -275,19 +283,19 @@ export class DressUpScene extends MiniGameScene {
       this.input.setDraggable(item.container);
 
       item.container.on("dragstart", () => {
-        if (!runtime.equipped && !this.modalOpen) {
+        if (!runtime.equipped && !this.isInputBlocked()) {
           item.container.setDepth(80);
         }
       });
 
       item.container.on("drag", (_pointer: Phaser.Input.Pointer, dragX: number, dragY: number) => {
-        if (!runtime.equipped && !this.modalOpen) {
+        if (!runtime.equipped && !this.isInputBlocked()) {
           item.container.setPosition(dragX, dragY);
         }
       });
 
       item.container.on("dragend", () => {
-        if (!runtime.equipped && !this.modalOpen) {
+        if (!runtime.equipped && !this.isInputBlocked()) {
           this.handleDrop(runtime);
         }
       });
@@ -298,12 +306,17 @@ export class DressUpScene extends MiniGameScene {
     itemData: EpiItem,
     x: number,
     y: number,
-    uiScale: number
+    uiScale: number,
+    cellW: number,
+    cellH: number
   ): { container: Phaser.GameObjects.Container; image: Phaser.GameObjects.Image } {
     const visual = ITEM_VISUALS[itemData.id];
     const trayWidth = (visual?.trayWidth ?? 96) * uiScale;
     const image = this.add.image(0, 0, itemData.assetKey).setOrigin(0.5);
-    image.setDisplaySize(trayWidth, trayWidth * (image.height / image.width));
+    const maxWidth = cellW > 0 ? Math.min(trayWidth, cellW * 0.68) : trayWidth;
+    const maxHeight = cellH > 0 ? cellH * 0.74 : trayWidth;
+    const imageScale = Math.min(maxWidth / image.width, maxHeight / image.height);
+    image.setDisplaySize(image.width * imageScale, image.height * imageScale);
 
     const hitW = Math.max(image.displayWidth + 16 * uiScale, 74 * uiScale);
     const hitH = Math.max(image.displayHeight + 16 * uiScale, 64 * uiScale);
@@ -364,6 +377,12 @@ export class DressUpScene extends MiniGameScene {
       return;
     }
 
+    if (itemRuntime.data.id === "botas") {
+      this.equipSplitBoots(itemRuntime, visual);
+      this.finishEquip(itemRuntime);
+      return;
+    }
+
     const targetX = layout.x + layout.height * (visual?.offsetXFactor ?? 0);
     const targetY = layout.bottomY + layout.height * (visual?.offsetYFactor ?? 0);
     const targetWidth = visual?.equipWidth ?? layout.height * (visual?.equipWidthFactor ?? 0.4);
@@ -391,9 +410,9 @@ export class DressUpScene extends MiniGameScene {
   private equipSplitGloves(itemRuntime: ItemRuntime, visual: ItemVisualConfig | undefined): void {
     const layout = this.avatarLayout;
     const targetY = layout.bottomY + layout.height * (visual?.offsetYFactor ?? -0.34);
-    const targetWidth = layout.height * 0.135;
-    const leftTargetX = layout.x - layout.height * 0.14;
-    const rightTargetX = layout.x + layout.height * 0.14;
+    const targetWidth = layout.height * 0.122;
+    const leftTargetX = layout.x - layout.height * 0.137;
+    const rightTargetX = layout.x + layout.height * 0.137;
     const startXOffset = itemRuntime.image.displayWidth * 0.18;
 
     this.createSplitGloveTween({
@@ -443,6 +462,84 @@ export class DressUpScene extends MiniGameScene {
     });
   }
 
+  private equipSplitBoots(itemRuntime: ItemRuntime, visual: ItemVisualConfig | undefined): void {
+    this.ensureBootFrames();
+
+    const layout = this.avatarLayout;
+    const targetY = layout.bottomY + layout.height * (visual?.offsetYFactor ?? -0.095);
+    const targetWidth = layout.height * 0.216;
+    const leftTargetX = layout.x - layout.height * 0.08;
+    const rightTargetX = layout.x + layout.height * 0.083;
+    const startXOffset = itemRuntime.image.displayWidth * 0.19;
+
+    this.createSplitBootTween({
+      frame: BOOT_LEFT_FRAME,
+      startX: itemRuntime.container.x - startXOffset,
+      startY: itemRuntime.container.y,
+      targetX: leftTargetX,
+      targetY,
+      targetWidth,
+      originX: 0.421,
+      originY: 0.499,
+      depth: visual?.depth ?? 26
+    });
+
+    this.createSplitBootTween({
+      frame: BOOT_RIGHT_FRAME,
+      startX: itemRuntime.container.x + startXOffset,
+      startY: itemRuntime.container.y,
+      targetX: rightTargetX,
+      targetY,
+      targetWidth,
+      originX: 0.574,
+      originY: 0.499,
+      depth: visual?.depth ?? 26
+    });
+  }
+
+  private ensureBootFrames(): void {
+    const texture = this.textures.get(DRESS_UP_ASSETS.botas.key);
+    const source = texture.getSourceImage() as HTMLImageElement;
+    const leftWidth = Math.ceil(source.width / 2);
+    const rightWidth = source.width - leftWidth;
+
+    if (!texture.has(BOOT_LEFT_FRAME)) {
+      texture.add(BOOT_LEFT_FRAME, 0, 0, 0, leftWidth, source.height);
+    }
+
+    if (!texture.has(BOOT_RIGHT_FRAME)) {
+      texture.add(BOOT_RIGHT_FRAME, 0, leftWidth, 0, rightWidth, source.height);
+    }
+  }
+
+  private createSplitBootTween(args: {
+    frame: string;
+    startX: number;
+    startY: number;
+    targetX: number;
+    targetY: number;
+    targetWidth: number;
+    originX: number;
+    originY: number;
+    depth: number;
+  }): void {
+    const image = this.add
+      .image(args.startX, args.startY, DRESS_UP_ASSETS.botas.key, args.frame)
+      .setOrigin(args.originX, args.originY)
+      .setDepth(args.depth);
+    const targetHeight = args.targetWidth * (image.height / image.width);
+
+    this.tweens.add({
+      targets: image,
+      x: args.targetX,
+      y: args.targetY,
+      displayWidth: args.targetWidth,
+      displayHeight: targetHeight,
+      duration: 220,
+      ease: "Quad.Out"
+    });
+  }
+
   private finishEquip(itemRuntime: ItemRuntime): void {
     this.audio.play("success");
     gameStore.addScoreForAction({
@@ -455,15 +552,23 @@ export class DressUpScene extends MiniGameScene {
 
     const totalCorrect = epiItems.filter((item) => item.isCorrect).length;
     const equippedCorrect = this.items.filter((item) => item.equipped && item.data.isCorrect).length;
-    if (equippedCorrect >= totalCorrect) {
-      this.audio.play("complete");
+    if (equippedCorrect >= totalCorrect && !this.completionPending) {
+      this.completionPending = true;
       gameStore.markMiniGameCompleted("vista_se");
-      this.openModal({
-        title: "Trabalhador pronto",
-        message: "Todos os EPIs corretos foram equipados.",
-        tone: "complete",
-        confirmLabel: "Voltar",
-        onConfirm: () => this.returnToMap()
+
+      this.time.delayedCall(2400, () => {
+        if (!this.sys.isActive()) {
+          return;
+        }
+
+        this.audio.play("complete");
+        this.openModal({
+          title: "Personagem completo",
+          message: "O personagem está vestido com todos os EPIs corretos.",
+          tone: "complete",
+          confirmLabel: "Voltar",
+          onConfirm: () => this.returnToMap()
+        });
       });
     }
   }
@@ -522,6 +627,10 @@ export class DressUpScene extends MiniGameScene {
     const totalCorrect = epiItems.filter((item) => item.isCorrect).length;
     const equippedCorrect = this.items.filter((item) => item.equipped && item.data.isCorrect).length;
     this.equippedText.setText(`${equippedCorrect} / ${totalCorrect} EPIs`);
+  }
+
+  private isInputBlocked(): boolean {
+    return this.modalOpen || this.completionPending;
   }
 
   private openModal(args: {

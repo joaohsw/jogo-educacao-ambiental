@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 
 import {
+  BACKGROUND_MUSIC,
   DRESS_UP_ASSETS,
   ENDING_BACKGROUND,
   INTRO_BACKGROUND,
@@ -100,6 +101,7 @@ export class BootScene extends Phaser.Scene {
     this.load.audio("sfx-success", "/audio/success.wav");
     this.load.audio("sfx-error", "/audio/error.wav");
     this.load.audio("sfx-complete", "/audio/complete.wav");
+    this.load.audio(BACKGROUND_MUSIC.key, BACKGROUND_MUSIC.path);
   }
 
   create(): void {
