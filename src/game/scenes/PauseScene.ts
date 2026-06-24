@@ -39,8 +39,14 @@ export class PauseScene extends Phaser.Scene {
     const centerX = width * 0.5;
     const centerY = height * 0.5;
     const buttonWidth = Math.min(panelWidth - 72, 360);
-    const buttonHeight = Phaser.Math.Clamp(60 * uiScale, 48, 66);
-    const gap = Phaser.Math.Clamp(18 * uiScale, 12, 22);
+    const buttonHeight = Phaser.Math.Clamp(56 * uiScale, 46, 60);
+    const gap = Phaser.Math.Clamp(18 * uiScale, 12, 20);
+    const titleFontSize = Math.floor(Phaser.Math.Clamp(40 * uiScale, 30, 42));
+    const buttonFontSize = Math.floor(Phaser.Math.Clamp(27 * uiScale, 20, 28));
+    const topPadding = Phaser.Math.Clamp(46 * uiScale, 34, 54);
+    const titleToButtonsGap = Phaser.Math.Clamp(34 * uiScale, 24, 40);
+    const titleY = centerY - panelHeight * 0.5 + topPadding + titleFontSize * 0.5;
+    const firstY = titleY + titleFontSize * 0.5 + titleToButtonsGap + buttonHeight * 0.5;
 
     this.children.removeAll(true);
     this.buttons = [];
@@ -54,15 +60,14 @@ export class PauseScene extends Phaser.Scene {
       .setStrokeStyle(4, 0x7c2d12);
 
     this.add
-      .text(centerX, centerY - panelHeight * 0.31, "Jogo Pausado", {
+      .text(centerX, titleY, "Jogo Pausado", {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
-        fontSize: `${Math.floor(42 * uiScale)}px`,
+        fontSize: `${titleFontSize}px`,
         color: "#5f330b",
         fontStyle: "700"
       })
       .setOrigin(0.5);
 
-    const firstY = centerY - buttonHeight - gap;
     this.addPauseButton(createButton(this, centerX, firstY, "Continuar", () => this.resumeGame(), {
       width: buttonWidth,
       height: buttonHeight,
@@ -71,7 +76,7 @@ export class PauseScene extends Phaser.Scene {
       borderColor: 0x86efac,
       hoverBorderColor: 0xbbf7d0,
       textColor: "#f0fdf4",
-      fontSize: `${Math.floor(28 * uiScale)}px`,
+      fontSize: `${buttonFontSize}px`,
       depth: 10
     }));
 
@@ -83,7 +88,7 @@ export class PauseScene extends Phaser.Scene {
       borderColor: 0xc7d2fe,
       hoverBorderColor: 0xe0e7ff,
       textColor: "#eef2ff",
-      fontSize: `${Math.floor(28 * uiScale)}px`,
+      fontSize: `${buttonFontSize}px`,
       depth: 10
     }));
 
@@ -95,7 +100,7 @@ export class PauseScene extends Phaser.Scene {
       borderColor: 0x7c2d12,
       hoverBorderColor: 0x451a03,
       textColor: "#3b2203",
-      fontSize: `${Math.floor(28 * uiScale)}px`,
+      fontSize: `${buttonFontSize}px`,
       depth: 10
     }));
 

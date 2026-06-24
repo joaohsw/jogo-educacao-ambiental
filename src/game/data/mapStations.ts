@@ -63,7 +63,7 @@ export const mapStations: MapStation[] = [
     assetVisibleOffsetY: -9,
     sceneKey: SCENE_KEYS.spotError,
     sceneData: {
-      sceneTitle: "Cena 2 - Depósito",
+      sceneTitle: "Cena 2 - Deposito",
       miniGameId: "jogo_erros_deposito",
       mapKey: "map-deposito",
       backgroundKey: "bg-deposito"
@@ -90,7 +90,7 @@ export const mapStations: MapStation[] = [
   },
   {
     id: "epi",
-    label: "Galpão EPIs",
+    label: "Galpao EPIs",
     x: 300,
     y: 1605,
     width: 185,
@@ -105,22 +105,5 @@ export const mapStations: MapStation[] = [
     assetVisibleOffsetY: -9,
     sceneKey: SCENE_KEYS.dressUp,
     miniGameId: "vista_se"
-  },
-  {
-    id: "estatisticas",
-    label: "Estatísticas",
-    x: 1665,
-    y: 1600,
-    width: 190,
-    height: 145,
-    color: 0x92400e,
-    borderColor: 0x7c2d12,
-    roofColor: 0xea580c,
-    assetKey: MAP_STATION_ASSETS.estatisticas.key,
-    assetDisplayWidth: 335,
-    assetVisibleWidth: 290,
-    assetVisibleHeight: 248,
-    assetVisibleOffsetY: -3,
-    sceneKey: SCENE_KEYS.ranking
   }
 ];

@@ -22,8 +22,7 @@ export const MAP_STATION_ASSETS = {
   lavoura: { key: "station-lavoura", path: "/images/lavoura.png" },
   deposito: { key: "station-deposito", path: "/images/deposito.png" },
   descarte: { key: "station-descarte", path: "/images/descarte.png" },
-  galpaoEpis: { key: "station-galpao-epis", path: "/images/galpaoepis.png" },
-  estatisticas: { key: "station-estatisticas", path: "/images/estatisticas.png" }
+  galpaoEpis: { key: "station-galpao-epis", path: "/images/galpaoepis.png" }
 } as const;
 
 export const DRESS_UP_ASSETS = {
@@ -69,7 +68,6 @@ export const SCENE_KEYS = {
   spotError: "spot-error-scene",
   packaging: "packaging-scene",
   dressUp: "dress-up-scene",
-  ranking: "ranking-scene",
   settings: "settings-scene"
 } as const;
 
