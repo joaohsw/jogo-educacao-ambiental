@@ -35,7 +35,7 @@ export class PauseScene extends Phaser.Scene {
     const height = this.scale.height;
     const uiScale = Phaser.Math.Clamp(Math.min(width / 1280, height / 720), 0.68, 1.22);
     const panelWidth = Phaser.Math.Clamp(width * 0.36, 360, 520);
-    const panelHeight = Phaser.Math.Clamp(height * 0.44, 300, 380);
+    const panelHeight = Phaser.Math.Clamp(height * 0.54, 360, 450);
     const centerX = width * 0.5;
     const centerY = height * 0.5;
     const buttonWidth = Math.min(panelWidth - 72, 360);
@@ -62,7 +62,7 @@ export class PauseScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    const firstY = centerY - buttonHeight * 0.2;
+    const firstY = centerY - buttonHeight - gap;
     this.addPauseButton(createButton(this, centerX, firstY, "Continuar", () => this.resumeGame(), {
       width: buttonWidth,
       height: buttonHeight,
@@ -75,7 +75,19 @@ export class PauseScene extends Phaser.Scene {
       depth: 10
     }));
 
-    this.addPauseButton(createButton(this, centerX, firstY + buttonHeight + gap, "Menu Principal", () => this.exitToMenu(), {
+    this.addPauseButton(createButton(this, centerX, firstY + buttonHeight + gap, "Configuracoes", () => this.openSettings(), {
+      width: buttonWidth,
+      height: buttonHeight,
+      backgroundColor: 0x4338ca,
+      hoverBackgroundColor: 0x4f46e5,
+      borderColor: 0xc7d2fe,
+      hoverBorderColor: 0xe0e7ff,
+      textColor: "#eef2ff",
+      fontSize: `${Math.floor(28 * uiScale)}px`,
+      depth: 10
+    }));
+
+    this.addPauseButton(createButton(this, centerX, firstY + (buttonHeight + gap) * 2, "Menu Principal", () => this.exitToMenu(), {
       width: buttonWidth,
       height: buttonHeight,
       backgroundColor: 0xfacc15,
@@ -146,6 +158,15 @@ export class PauseScene extends Phaser.Scene {
     this.audio.play("click");
     this.scene.resume(SCENE_KEYS.map);
     this.scene.stop();
+  }
+
+  private openSettings(): void {
+    if (this.isClosing) return;
+
+    this.audio.play("click");
+    this.scene.launch(SCENE_KEYS.settings, { returnTo: SCENE_KEYS.pause });
+    this.scene.bringToTop(SCENE_KEYS.settings);
+    this.scene.pause();
   }
 
   private exitToMenu(): void {

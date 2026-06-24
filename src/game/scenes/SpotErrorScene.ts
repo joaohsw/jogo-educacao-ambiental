@@ -17,7 +17,7 @@ interface SpotSceneData {
 interface HotspotRuntime {
   id: string;
   message: string;
-  rect: Phaser.GameObjects.Rectangle;
+  rects: Phaser.GameObjects.Rectangle[];
   marker?: Phaser.GameObjects.Text;
   found: boolean;
 }
@@ -149,7 +149,9 @@ export class SpotErrorScene extends MiniGameScene {
       });
     });
 
-    this.hotspots = objectLayer.objects.map((object) => {
+    const hotspotMap = new Map<string, HotspotRuntime>();
+
+    objectLayer.objects.forEach((object) => {
       const id = object.name ?? `hotspot_${object.id}`;
       const message = this.getStringProperty(object, "successMessage", "Muito bem, você encontrou um erro.");
       const mapped = this.mapToImageBounds(
@@ -169,14 +171,22 @@ export class SpotErrorScene extends MiniGameScene {
 
       rect.on("pointerdown", () => this.handleHotspot(id, message));
 
-      const hotspot: HotspotRuntime = { id, message, rect, found: false };
-      const actionId = `hotspot:${id}`;
+      let hotspot = hotspotMap.get(id);
+      if (!hotspot) {
+        hotspot = { id, message, rects: [], found: false };
+        hotspotMap.set(id, hotspot);
+      }
+
+      hotspot.rects.push(rect);
+    });
+
+    this.hotspots = [...hotspotMap.values()];
+    this.hotspots.forEach((hotspot) => {
+      const actionId = `hotspot:${hotspot.id}`;
       if (gameStore.wasActionScored(this.configData.miniGameId, actionId)) {
         hotspot.found = true;
         this.applyFoundStyle(hotspot);
       }
-
-      return hotspot;
     });
 
     this.updateCounter();
@@ -233,10 +243,14 @@ export class SpotErrorScene extends MiniGameScene {
   }
 
   private applyFoundStyle(hotspot: HotspotRuntime): void {
-    hotspot.rect.setFillStyle(0x16a34a, 0.32);
-    hotspot.rect.setStrokeStyle(2, 0x166534, 1);
+    hotspot.rects.forEach((rect) => {
+      rect.setFillStyle(0x16a34a, 0.32);
+      rect.setStrokeStyle(2, 0x166534, 1);
+    });
+
+    const markerPosition = this.getHotspotMarkerPosition(hotspot);
     hotspot.marker = this.add
-      .text(hotspot.rect.x, hotspot.rect.y, "OK", {
+      .text(markerPosition.x, markerPosition.y, "OK", {
         fontFamily: "'Segoe UI', 'Trebuchet MS', sans-serif",
         fontSize: "22px",
         color: "#ffffff",
@@ -244,6 +258,15 @@ export class SpotErrorScene extends MiniGameScene {
       })
       .setOrigin(0.5)
       .setDepth(12);
+  }
+
+  private getHotspotMarkerPosition(hotspot: HotspotRuntime): Phaser.Math.Vector2 {
+    const bounds = hotspot.rects.map((rect) => rect.getBounds());
+    const left = Math.min(...bounds.map((rect) => rect.left));
+    const right = Math.max(...bounds.map((rect) => rect.right));
+    const top = Math.min(...bounds.map((rect) => rect.top));
+    const bottom = Math.max(...bounds.map((rect) => rect.bottom));
+    return new Phaser.Math.Vector2((left + right) * 0.5, (top + bottom) * 0.5);
   }
 
   private showCompletion(): void {

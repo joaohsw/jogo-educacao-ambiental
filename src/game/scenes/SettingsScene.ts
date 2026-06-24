@@ -4,6 +4,10 @@ import { GameAudio } from "../audio/GameAudio";
 import { MENU_BACKGROUND, SCENE_KEYS } from "../constants";
 import { createButton, type GameButton } from "../ui/Button";
 
+interface SettingsSceneData {
+  returnTo?: string;
+}
+
 export class SettingsScene extends Phaser.Scene {
   private audio!: GameAudio;
   private backButton?: GameButton;
@@ -12,12 +16,14 @@ export class SettingsScene extends Phaser.Scene {
   private sliderKnob!: Phaser.GameObjects.Arc;
   private sliderLeft = 0;
   private sliderWidth = 0;
+  private returnSceneKey: string = SCENE_KEYS.home;
 
   constructor() {
     super(SCENE_KEYS.settings);
   }
 
-  create(): void {
+  create(data: SettingsSceneData = {}): void {
+    this.returnSceneKey = data.returnTo === SCENE_KEYS.pause ? SCENE_KEYS.pause : SCENE_KEYS.home;
     this.audio = new GameAudio(this);
     this.renderSettings();
     this.setupKeyboard();
@@ -81,10 +87,7 @@ export class SettingsScene extends Phaser.Scene {
 
     this.drawVolumeSlider(panelX, panelY + panelHeight * 0.12, panelWidth * 0.68, uiScale);
 
-    this.backButton = createButton(this, panelX, panelY + panelHeight * 0.34, "Voltar", () => {
-      this.audio.play("click");
-      this.scene.start(SCENE_KEYS.home);
-    }, {
+    this.backButton = createButton(this, panelX, panelY + panelHeight * 0.34, "Voltar", () => this.closeSettings(), {
       width: Math.floor(220 * uiScale),
       height: Math.floor(56 * uiScale),
       backgroundColor: 0x166534,
@@ -189,6 +192,18 @@ export class SettingsScene extends Phaser.Scene {
     keyEnter.on("down", () => this.backButton?.trigger());
     keySpace.on("down", () => this.backButton?.trigger());
     keyEsc.on("down", () => this.backButton?.trigger());
+  }
+
+  private closeSettings(): void {
+    this.audio.play("click");
+
+    if (this.returnSceneKey === SCENE_KEYS.pause) {
+      this.scene.resume(SCENE_KEYS.pause);
+      this.scene.stop();
+      return;
+    }
+
+    this.scene.start(SCENE_KEYS.home);
   }
 
   private getUiScale(width: number, height: number): number {

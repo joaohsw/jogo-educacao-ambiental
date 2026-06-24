@@ -18,7 +18,7 @@ const VOLUME_BY_CUE: Record<Cue, number> = {
   complete: 0.5
 };
 
-const DEFAULT_MUSIC_VOLUME = 0.35;
+const DEFAULT_MUSIC_VOLUME = 0.05;
 
 export class GameAudio {
   private static backgroundMusic?: Phaser.Sound.BaseSound;
@@ -65,8 +65,8 @@ export class GameAudio {
       return;
     }
 
-    const sound = scene.sound as Phaser.Sound.BaseSoundManager & { unlocked?: boolean };
-    if (sound.unlocked === false) {
+    const sound = scene.sound as Phaser.Sound.BaseSoundManager & { locked?: boolean };
+    if (sound.locked === true) {
       if (!GameAudio.unlockListenerAttached) {
         GameAudio.unlockListenerAttached = true;
         scene.sound.once(Phaser.Sound.Events.UNLOCKED, () => {

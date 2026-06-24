@@ -9,76 +9,94 @@
       "name": "hotspots",
       "objects": [
         {
-          "height": 160,
+          "height": 610,
           "id": 1,
-          "name": "produtos_quimicos_no_chao",
+          "name": "homem_tocando_frascos_sem_epi",
           "properties": [
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Correto! Produtos químicos não devem ficar soltos no chão; precisam estar fechados, identificados e em local seguro."
+              "value": "Correto! O trabalhador esta manuseando frascos sem luvas e mascara. Produtos quimicos exigem EPI antes de qualquer contato."
             }
           ],
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 185,
-          "x": 0,
-          "y": 570
-        },
-        {
-          "height": 255,
-          "id": 2,
-          "name": "pulverizador_no_deposito",
-          "properties": [
-            {
-              "name": "successMessage",
-              "type": "string",
-              "value": "Muito bem! O pulverizador precisa ser higienizado e guardado corretamente, longe de circulacao e de materiais comuns."
-            }
-          ],
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 330,
-          "x": 125,
-          "y": 385
-        },
-        {
-          "height": 125,
-          "id": 3,
-          "name": "caixa_aberta_no_chao",
-          "properties": [
-            {
-              "name": "successMessage",
-              "type": "string",
-              "value": "Correto! Caixas e embalagens abertas no chão deixam o depósito desorganizado e podem causar acidentes ou contaminação."
-            }
-          ],
-          "rotation": 0,
-          "type": "",
-          "visible": true,
-          "width": 210,
-          "x": 1028,
-          "y": 598
+          "width": 430,
+          "x": 275,
+          "y": 230
         },
         {
           "height": 190,
-          "id": 4,
-          "name": "animais_no_deposito",
+          "id": 2,
+          "name": "embalagens_no_chao_esquerda",
           "properties": [
             {
               "name": "successMessage",
               "type": "string",
-              "value": "Muito bem! Animais não podem entrar no depósito, pois podem se contaminar e espalhar resíduos."
+              "value": "Muito bem! Embalagens e frascos nao devem ficar no chao. Eles precisam estar fechados, identificados e armazenados corretamente."
             }
           ],
           "rotation": 0,
           "type": "",
           "visible": true,
-          "width": 420,
-          "x": 1135,
-          "y": 700
+          "width": 245,
+          "x": 15,
+          "y": 550
+        },
+        {
+          "height": 250,
+          "id": 3,
+          "name": "galinha_se_alimentando_no_galpao",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Correto! Animais nao devem se alimentar dentro do galpao, pois podem se contaminar e espalhar residuos."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 500,
+          "x": 1085,
+          "y": 640
+        },
+        {
+          "height": 285,
+          "id": 4,
+          "name": "trator_e_ferramentas_no_galpao",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Muito bem! Trator e ferramentas devem ficar separados da area de armazenamento de produtos, evitando acidentes e contaminacao."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 390,
+          "x": 860,
+          "y": 305
+        },
+        {
+          "height": 450,
+          "id": 5,
+          "name": "trator_e_ferramentas_no_galpao",
+          "properties": [
+            {
+              "name": "successMessage",
+              "type": "string",
+              "value": "Muito bem! Trator e ferramentas devem ficar separados da area de armazenamento de produtos, evitando acidentes e contaminacao."
+            }
+          ],
+          "rotation": 0,
+          "type": "",
+          "visible": true,
+          "width": 390,
+          "x": 1265,
+          "y": 190
         }
       ],
       "opacity": 1,
@@ -89,7 +107,7 @@
     }
   ],
   "nextlayerid": 2,
-  "nextobjectid": 5,
+  "nextobjectid": 6,
   "orientation": "orthogonal",
   "renderorder": "right-down",
   "tiledversion": "1.10.2",

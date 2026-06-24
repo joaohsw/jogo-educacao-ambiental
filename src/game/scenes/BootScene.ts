@@ -92,8 +92,8 @@ export class BootScene extends Phaser.Scene {
       frameHeight: PLAYER_SPRITE_SHEET.frameHeight
     });
 
-    this.load.tilemapTiledJSON("map-lavoura", "/tiled/spot_lavoura.tmj");
-    this.load.tilemapTiledJSON("map-deposito", "/tiled/spot_deposito.tmj");
+    this.load.tilemapTiledJSON("map-lavoura", "/tiled/spot_lavoura.tmj?v=lavoura-20260623-2");
+    this.load.tilemapTiledJSON("map-deposito", "/tiled/spot_deposito.tmj?v=galpao-20260623-2");
     this.load.tilemapTiledJSON("map-packaging", "/tiled/packaging_journey.tmj");
     this.load.tilemapTiledJSON("map-dressup", "/tiled/dress_up.tmj");
 
